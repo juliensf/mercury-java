@@ -14,6 +14,7 @@
 :- interface.
 
 :- include_module file.
+:- include_module print_writer.
 
 %-----------------------------------------------------------------------------%
 :- end_module jio.
