@@ -6,14 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
+% A Mercury wrapper for the java.io package.
+%
 %-----------------------------------------------------------------------------%
 
-:- module mercury_java.
+:- module jio.
 :- interface.
 
-:- import_module jio.
-:- import_module jnet.
+:- include_module file.
 
 %-----------------------------------------------------------------------------%
-:- end_module mercury_java.
+:- end_module jio.
 %-----------------------------------------------------------------------------%
