@@ -15,6 +15,7 @@
 
 :- import_module jio.file.
 
+:- import_module bool.
 :- import_module io.
 :- import_module maybe.
 :- import_module stream.
@@ -25,7 +26,9 @@
 
 :- instance stream(print_writer, io).
 :- instance output(print_writer, io).
+:- instance writer(print_writer, float, io).
 :- instance writer(print_writer, int, io).
+:- instance writer(print_writer, int64, io).
 :- instance writer(print_writer, string, io).
 
 :- pred print_writer(file::in, maybe_error(print_writer)::out,
@@ -33,14 +36,14 @@
 
 %---------------------------------------------------------------------------%
 
+:- pred check_error(print_writer::in, bool::out, io::di, io::uo) is det.
+
 :- pred close(print_writer::in, io::di, io::uo) is det.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
 :- implementation.
-
-:- import_module bool.
 
 :- pragma foreign_type("Java", print_writer, "java.io.PrintWriter").
 
@@ -54,8 +57,16 @@
     pred(flush/3) is do_flush
 ].
 
+:- instance writer(print_writer, float, io) where [
+    pred(put/4) is do_print_float
+].
+
 :- instance writer(print_writer, int, io) where [
     pred(put/4) is do_print_int
+].
+
+:- instance writer(print_writer, int64, io) where [
+    pred(put/4) is do_print_int64
 ].
 
 :- instance writer(print_writer, string, io) where [
@@ -106,6 +117,17 @@ print_writer(File, Result, !IO) :-
 
 %---------------------------------------------------------------------------%
 
+:- pred do_print_float(print_writer::in, float::in, io::di, io::uo) is det.
+
+:- pragma foreign_proc("Java",
+    do_print_float(PW::in, F::in, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    PW.print(F);
+").
+
+%---------------------------------------------------------------------------%
+
 :- pred do_print_int(print_writer::in, int::in, io::di, io::uo) is det.
 
 :- pragma foreign_proc("Java",
@@ -117,6 +139,17 @@ print_writer(File, Result, !IO) :-
 
 %---------------------------------------------------------------------------%
 
+:- pred do_print_int64(print_writer::in, int64::in, io::di, io::uo) is det.
+
+:- pragma foreign_proc("Java",
+    do_print_int64(PW::in, I64::in, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    PW.print(I64);
+").
+
+%---------------------------------------------------------------------------%
+
 :- pred do_print_string(print_writer::in, string::in, io::di, io::uo) is det.
 
 :- pragma foreign_proc("Java",
@@ -124,6 +157,15 @@ print_writer(File, Result, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     PW.print(S);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    check_error(PW::in, Result::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    Result = (PW.checkError()) ? bool.YES : bool.NO;
 ").
 
 %---------------------------------------------------------------------------%
