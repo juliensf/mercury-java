@@ -10,7 +10,7 @@
 %
 %---------------------------------------------------------------------------%
 
-:- module file.
+:- module jio.file.
 :- interface.
 
 :- import_module maybe.

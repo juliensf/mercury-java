@@ -10,7 +10,7 @@
 %
 %---------------------------------------------------------------------------%
 
-:- module url.
+:- module jnet.url.
 :- interface.
 
 :- import_module jnet.uri.

@@ -1,1 +1,3 @@
+MCFLAGS = --grade java --libgrades-include java
+
 MCFLAGS-mercury_java = --no-warn-nothing-exported --no-warn-interface-imports

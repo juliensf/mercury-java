@@ -10,7 +10,7 @@
 %
 %---------------------------------------------------------------------------%
 
-:- module print_writer.
+:- module jio.print_writer.
 :- interface.
 
 :- import_module jio.file.
