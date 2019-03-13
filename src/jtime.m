@@ -6,15 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
+% A Mercury wrapper for the java.time package.
+%
 %-----------------------------------------------------------------------------%
 
-:- module mercury_java.
+:- module jtime.
 :- interface.
 
-:- import_module jio.
-:- import_module jnet.
-:- import_module jtime.
+:- include_module local_date.
 
 %-----------------------------------------------------------------------------%
-:- end_module mercury_java.
+:- end_module jtime.
 %-----------------------------------------------------------------------------%

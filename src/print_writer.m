@@ -16,6 +16,7 @@
 :- import_module jio.file.
 
 :- import_module bool.
+:- import_module char.
 :- import_module io.
 :- import_module maybe.
 :- import_module stream.
@@ -26,6 +27,7 @@
 
 :- instance stream(print_writer, io).
 :- instance output(print_writer, io).
+:- instance writer(print_writer, char, io).
 :- instance writer(print_writer, float, io).
 :- instance writer(print_writer, int, io).
 :- instance writer(print_writer, int64, io).
@@ -55,6 +57,10 @@
 
 :- instance output(print_writer, io) where [
     pred(flush/3) is do_flush
+].
+
+:- instance writer(print_writer, char, io) where [
+    pred(put/4) is do_print_char
 ].
 
 :- instance writer(print_writer, float, io) where [
@@ -113,6 +119,17 @@ print_writer(File, Result, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     PW.flush();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pred do_print_char(print_writer::in, char::in, io::di, io::uo) is det.
+
+:- pragma foreign_proc("Java",
+    do_print_char(PW::in, C::in, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    PW.print(java.lang.Character.toChars(C));
 ").
 
 %---------------------------------------------------------------------------%
