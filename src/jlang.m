@@ -6,16 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
+% A Mercury wrapper for the java.lang package.
+%
 %-----------------------------------------------------------------------------%
 
-:- module mercury_java.
+:- module jlang.
 :- interface.
 
-:- import_module jio.
-:- import_module jlang.
-:- import_module jnet.
-:- import_module jtime.
+:- include_module throwable.
 
 %-----------------------------------------------------------------------------%
-:- end_module mercury_java.
+:- end_module jlang.
 %-----------------------------------------------------------------------------%

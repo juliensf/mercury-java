@@ -28,6 +28,9 @@
 
 :- implementation.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
 :- import_module bool.
 :- import_module exception.
 
@@ -56,29 +59,29 @@
 %---------------------------------------------------------------------------%
 
 plus_days(Date, DaysToAdd) = Result :-
-    do_plus_days(Date, DaysToAdd, Result, Ok, ErrMsg),
+    do_plus_days(Date, DaysToAdd, Result, Ok, Error),
     (
         Ok = no,
-        throw(software_error(ErrMsg))
+        throw(java_exception(Error))
     ;
         Ok = yes
     ).
 
 :- pred do_plus_days(local_date::in, int64::in, local_date::out,
-    bool::out, string::out) is det.
+    bool::out, throwable::out) is det.
 
 :- pragma foreign_proc("Java",
-    do_plus_days(D0::in, Days::in, D::out, Ok::out, ErrMsg::out),
+    do_plus_days(D0::in, Days::in, D::out, Ok::out, Error::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
         D = D0.plusDays(Days);
         Ok = bool.YES;
-        ErrMsg = """";
+        Error = null;
     } catch (java.time.DateTimeException e) {
         D = null;
         Ok = bool.NO;
-        ErrMsg = e.getMessage();
+        Error = e;
     }
 ").
 
