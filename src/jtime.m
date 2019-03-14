@@ -14,6 +14,7 @@
 :- interface.
 
 :- include_module local_date.
+:- include_module local_time.
 
 %-----------------------------------------------------------------------------%
 :- end_module jtime.
