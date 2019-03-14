@@ -62,6 +62,9 @@
 
 :- implementation.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
 :- import_module bool.
 :- import_module exception.
 :- import_module uint16.
@@ -71,28 +74,28 @@
 %---------------------------------------------------------------------------%
 
 uri(String) = URI :-
-    do_new_uri(String, URI, Ok, ErrMsg),
+    do_new_uri(String, URI, Ok, Err),
     (
         Ok = no,
-        throw(software_error(ErrMsg))
+        throw(java_exception(Err))
     ;
         Ok = yes
     ).
 
-:- pred do_new_uri(string::in, uri::out, bool::out, string::out) is det.
+:- pred do_new_uri(string::in, uri::out, bool::out, throwable::out) is det.
 
 :- pragma foreign_proc("Java",
-    do_new_uri(S::in, U::out, Ok::out, ErrMsg::out),
+    do_new_uri(S::in, U::out, Ok::out, Err::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
         U = new java.net.URI(S);
         Ok = bool.YES;
-        ErrMsg = """";
+        Err = null;
     } catch (java.net.URISyntaxException e) {
         Ok = bool.NO;
         U = null;
-        ErrMsg = e.getMessage();
+        Err = e;
     }
 ").
 
