@@ -13,9 +13,17 @@
 :- module jtime.local_date.
 :- interface.
 
+:- import_module jtime.local_date_time.
+
 :- import_module io.
 
 :- type local_date.
+
+:- func min = local_date.
+
+:- func max = local_date.
+
+:- func at_start_of_day(local_date) = local_date_time.
 
 :- func get_day_of_month(local_date) = int.
 
@@ -64,6 +72,33 @@
 :- pragma foreign_type("Java", local_date, "java.time.LocalDate") where
     equality is local_date.equals,
     comparison is local_date.compare_to.
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    min = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalDate.MIN;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    max = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalDate.MAX;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    at_start_of_day(D::in) = (DT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DT = D.atStartOfDay();
+").
 
 %---------------------------------------------------------------------------%
 
