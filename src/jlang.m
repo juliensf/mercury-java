@@ -14,6 +14,8 @@
 :- interface.
 
 :- include_module stack_trace_element.
+:- include_module string_builder.
+:- include_module system.
 :- include_module throwable.
 
 %-----------------------------------------------------------------------------%
