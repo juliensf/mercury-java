@@ -13,11 +13,42 @@
 :- module jtime.local_time.
 :- interface.
 
+:- import_module jtime.local_date.
+:- import_module jtime.local_date_time.
+
 :- import_module io.
 
 :- type local_time.
 
+:- func max = local_time.
+
+:- func midnight = local_time.
+
+:- func min = local_time.
+
+:- func noon = local_time.
+
+:- func at_date(local_time, local_date) = local_date_time.
+
+:- func get_hour(local_time) = int.
+
+:- func get_minute(local_time) = int.
+
+:- func get_nano(local_time) = int.
+
+:- func get_second(local_time) = int.
+
+:- pred is_before(local_time::in, local_time::in) is semidet.
+
+:- pred is_after(local_time::in, local_time::in) is semidet.
+
 :- pred now(local_time::out, io::di, io::uo) is det.
+
+:- pred parse(string::in, local_time::out) is semidet.
+
+:- func to_nano_of_day(local_time) = int64.
+
+:- func to_second_of_day(local_time) = int.
 
 :- func to_string(local_time) = string.
 
@@ -73,10 +104,142 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
+    max = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalTime.MAX;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    midnight = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalTime.MIDNIGHT;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    min = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalTime.MIN;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    noon = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = java.time.LocalTime.NOON;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    at_date(T::in, D::in) = (DT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DT = T.atDate(D);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_hour(T::in) = (H::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    H = T.getHour();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_minute(T::in) = (M::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    M = T.getMinute();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_nano(T::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = T.getNano();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_second(T::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = T.getSecond();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_before(A::in, B::in),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = A.isBefore(B);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_after(A::in, B::in),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = A.isAfter(B);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
     now(T::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     T = java.time.LocalTime.now();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.LocalTime.parse(S);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        D = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_nano_of_day(T::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = T.toNanoOfDay();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_second_of_day(T::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = T.toSecondOfDay();
 ").
 
 %---------------------------------------------------------------------------%
