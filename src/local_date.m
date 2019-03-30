@@ -13,9 +13,14 @@
 :- module jtime.local_date.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
 :- import_module jtime.local_date_time.
+:- import_module jtime.local_time.
 
 :- import_module io.
+
+%---------------------------------------------------------------------------%
 
 :- type local_date.
 
@@ -24,6 +29,11 @@
 :- func max = local_date.
 
 :- func at_start_of_day(local_date) = local_date_time.
+
+:- func at_time(local_date, local_time) = local_date_time.
+
+:- pred format(local_date::in, date_time_formatter::in, string::out)
+    is semidet.
 
 :- func get_day_of_month(local_date) = int.
 
@@ -45,7 +55,12 @@
 
 :- pred parse(string::in, local_date::out) is semidet.
 
+:- pred parse(string::in, date_time_formatter::in, local_date::out)
+    is semidet.
+
 :- func plus_days(local_date, int64) = local_date.
+
+:- func to_epoch_day(local_date) = int64.
 
 :- func to_string(local_date) = string.
 
@@ -98,6 +113,30 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     DT = D.atStartOfDay();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    at_time(D::in, T::in) = (DT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DT = D.atTime(T);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(D::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = D.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -198,6 +237,21 @@
 
 %---------------------------------------------------------------------------%
 
+:- pragma foreign_proc("Java",
+    parse(S::in, Fmt::in, D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.LocalDate.parse(S, Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        D = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 plus_days(Date, DaysToAdd) = Result :-
     do_plus_days(Date, DaysToAdd, Result, Ok, Error),
     (
@@ -232,6 +286,15 @@ plus_days(Date, DaysToAdd) = Result :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     S = D.toString();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_epoch_day(D::in) = (ED::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ED = D.toEpochDay();
 ").
 
 %---------------------------------------------------------------------------%

@@ -13,6 +13,8 @@
 :- module jtime.local_date_time.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
 :- import_module jtime.local_date.
 :- import_module jtime.local_time.
 
@@ -48,7 +50,12 @@
 
 :- pred parse(string::in, local_date_time::out) is semidet.
 
+:- pred parse(string::in, date_time_formatter::in, local_date_time::out)
+    is semidet.
+
 :- pred now(local_date_time::out, io::di, io::uo) is det.
+
+:- func of(local_date, local_time) = local_date_time.
 
 :- func to_string(local_date_time) = string.
 
@@ -216,14 +223,29 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    parse(S::in, D::out),
+    parse(S::in, DT::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        D = java.time.LocalDateTime.parse(S);
+        DT = java.time.LocalDateTime.parse(S);
         SUCCESS_INDICATOR = true;
     } catch (java.time.format.DateTimeParseException e) {
-        D = null;
+        DT = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, Fmt::in, DT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        DT = java.time.LocalDateTime.parse(S, Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        DT = null;
         SUCCESS_INDICATOR = false;
     }
 ").
@@ -235,6 +257,15 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     T = java.time.LocalDateTime.now();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    of(D::in, T::in) = (DT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DT = java.time.LocalDateTime.of(D, T);
 ").
 
 %---------------------------------------------------------------------------%

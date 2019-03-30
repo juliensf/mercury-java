@@ -13,8 +13,12 @@
 :- module jtime.local_time.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
+
+%---------------------------------------------------------------------------%
 
 :- import_module io.
 
@@ -45,6 +49,9 @@
 :- pred now(local_time::out, io::di, io::uo) is det.
 
 :- pred parse(string::in, local_time::out) is semidet.
+
+:- pred parse(string::in, date_time_formatter::in, local_time::out)
+    is semidet.
 
 :- func to_nano_of_day(local_time) = int64.
 
@@ -212,14 +219,29 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    parse(S::in, D::out),
+    parse(S::in, T::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        D = java.time.LocalTime.parse(S);
+        T = java.time.LocalTime.parse(S);
         SUCCESS_INDICATOR = true;
     } catch (java.time.format.DateTimeParseException e) {
-        D = null;
+        T = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, Fmt::in, T::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        T = java.time.LocalTime.parse(S, Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        T = null;
         SUCCESS_INDICATOR = false;
     }
 ").
