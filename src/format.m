@@ -6,20 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
-% A Mercury wrapper for the java.time package.
+% A Mercury wrapper for the java.time.format package.
 %
 %-----------------------------------------------------------------------------%
 
-:- module jtime.
+:- module jtime.format.
 :- interface.
 
-:- include_module format.
-:- include_module instant.
-:- include_module local_date.
-:- include_module local_date_time.
-:- include_module local_time.
-:- include_module year.
+:- include_module date_time_formatter.
 
 %-----------------------------------------------------------------------------%
-:- end_module jtime.
+:- end_module format.
 %-----------------------------------------------------------------------------%
