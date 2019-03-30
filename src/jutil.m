@@ -6,17 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
+% A Mercury wrapper for the java.util package.
+%
 %-----------------------------------------------------------------------------%
 
-:- module mercury_java.
+:- module jutil.
 :- interface.
 
-:- import_module jio.
-:- import_module jlang.
-:- import_module jnet.
-:- import_module jutil.
-:- import_module jtime.
+:- include_module locale.
 
 %-----------------------------------------------------------------------------%
-:- end_module mercury_java.
+:- end_module jutil.
 %-----------------------------------------------------------------------------%
