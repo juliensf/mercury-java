@@ -16,12 +16,31 @@
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
 :- import_module jtime.local_time.
+:- import_module jtime.zone_offset.
 
 :- import_module io.
 
 %---------------------------------------------------------------------------%
 
 :- type zoned_date_time.
+
+:- func get_day_of_month(zoned_date_time) = int.
+
+:- func get_day_of_year(zoned_date_time) = int.
+
+:- func get_hour(zoned_date_time) = int.
+
+:- func get_minute(zoned_date_time) = int.
+
+:- func get_month_value(zoned_date_time) = int.
+
+:- func get_nano(zoned_date_time) = int.
+
+:- func get_offset(zoned_date_time) = zone_offset.
+
+:- func get_second(zoned_date_time) = int.
+
+:- func get_year(zoned_date_time) = int.
 
 :- pred now(zoned_date_time::out, io::di, io::uo) is det.
 
@@ -74,6 +93,87 @@
     } else {
         Result = builtin.COMPARE_EQUAL;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_day_of_month(ZDT::in) = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = ZDT.getDayOfMonth();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_day_of_year(ZDT::in) = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = ZDT.getDayOfYear();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_hour(ZDT::in) = (H::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    H = ZDT.getHour();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_minute(ZDT::in) = (H::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    H = ZDT.getMinute();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_month_value(ZDT::in) = (MV::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    MV = ZDT.getMonthValue();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_nano(ZDT::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = ZDT.getNano();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_offset(ZDT::in) = (ZO::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ZO = ZDT.getOffset();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_second(ZDT::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = ZDT.getSecond();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_year(ZDT::in) = (Y::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    Y = ZDT.getYear();
 ").
 
 %---------------------------------------------------------------------------%
