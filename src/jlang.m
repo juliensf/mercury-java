@@ -13,6 +13,7 @@
 :- module jlang.
 :- interface.
 
+:- include_module character.
 :- include_module stack_trace_element.
 :- include_module string_builder.
 :- include_module system.
