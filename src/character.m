@@ -57,6 +57,12 @@
 
 :- pred is_whitespace(char::in) is semidet.
 
+:- pred to_lower_case(char::in, char::out) is semidet.
+
+:- pred to_title_case(char::in, char::out) is semidet.
+
+:- pred to_upper_case(char::in, char::out) is semidet.
+
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
@@ -240,6 +246,36 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     SUCCESS_INDICATOR = java.lang.Character.isWhitespace(C);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_lower_case(A::in, B::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    B = java.lang.Character.toLowerCase(A);
+    SUCCESS_INDICATOR = (A != B);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_title_case(A::in, B::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    B = java.lang.Character.toTitleCase(A);
+    SUCCESS_INDICATOR = (A != B);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_upper_case(A::in, B::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    B = java.lang.Character.toUpperCase(A);
+    SUCCESS_INDICATOR = (A != B);
 ").
 
 %---------------------------------------------------------------------------%
