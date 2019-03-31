@@ -13,6 +13,7 @@
 :- module jtime.
 :- interface.
 
+:- include_module duration.
 :- include_module format.
 :- include_module instant.
 :- include_module local_date.

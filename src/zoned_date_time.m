@@ -6,7 +6,7 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
-% Mercury wrapper for java.time.LocalDateTime.
+% Mercury wrapper for java.time.ZonedDateTime.
 %
 %---------------------------------------------------------------------------%
 
