@@ -19,6 +19,7 @@
 :- include_module local_date_time.
 :- include_module local_time.
 :- include_module year.
+:- include_module year_month.
 
 %-----------------------------------------------------------------------------%
 :- end_module jtime.
