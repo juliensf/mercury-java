@@ -1,0 +1,126 @@
+%---------------------------------------------------------------------------%
+% vim: ft=mercury ts=4 sw=4 et
+%---------------------------------------------------------------------------%
+% Copyright (C) 2019, Julien Fischer.
+% See the file COPYING for license details.
+%
+% Author: Julien Fischer <juliensf@gmail.com>
+%
+% Mercury wrapper for java.time.LocalDateTime.
+%
+%---------------------------------------------------------------------------%
+
+:- module jtime.zoned_date_time.
+:- interface.
+
+:- import_module jtime.local_date.
+:- import_module jtime.local_date_time.
+:- import_module jtime.local_time.
+
+:- import_module io.
+
+%---------------------------------------------------------------------------%
+
+:- type zoned_date_time.
+
+:- pred now(zoned_date_time::out, io::di, io::uo) is det.
+
+:- func to_local_date(zoned_date_time) = local_date.
+
+:- func to_local_date_time(zoned_date_time) = local_date_time.
+
+:- func to_local_time(zoned_date_time) = local_time.
+
+:- func to_string(zoned_date_time) = string.
+
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+
+:- implementation.
+
+:- interface.
+
+:- pred equals(zoned_date_time::in, zoned_date_time::in) is semidet.
+
+:- pred compare_to(comparison_result::uo, zoned_date_time::in,
+    zoned_date_time::in) is det.
+
+:- implementation.
+
+:- pragma foreign_type("Java", zoned_date_time, "java.time.ZonedDateTime")
+    where equality is zoned_date_time.equals,
+    comparison is zoned_date_time.compare_to.
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    equals(A::in, B::in),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = A.equals(B);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    compare_to(Result::uo, A::in, B::in),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    int res = A.compareTo(B);
+    if (res < 0) {
+        Result = builtin.COMPARE_LESS;
+    } else if (res > 0) {
+        Result = builtin.COMPARE_GREATER;
+    } else {
+        Result = builtin.COMPARE_EQUAL;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    now(ZDT::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ZDT = java.time.ZonedDateTime.now();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_date(ZDT::in) = (LD::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LD = ZDT.toLocalDate();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_date_time(ZDT::in) = (LDT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LDT = ZDT.toLocalDateTime();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_time(ZDT::in) = (LT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LT = ZDT.toLocalTime();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_string(ZDT::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = ZDT.toString();
+").
+
+%---------------------------------------------------------------------------%
+:- end_module zoned_date_time.
+%---------------------------------------------------------------------------%

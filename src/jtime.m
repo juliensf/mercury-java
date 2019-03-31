@@ -20,6 +20,8 @@
 :- include_module local_time.
 :- include_module year.
 :- include_module year_month.
+:- include_module zoned_date_time.
+:- include_module zone_offset.
 
 %-----------------------------------------------------------------------------%
 :- end_module jtime.
