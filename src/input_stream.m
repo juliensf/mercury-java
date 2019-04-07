@@ -33,9 +33,9 @@
 
 %---------------------------------------------------------------------------%
 
-    % In case we are maniulating values of java.io.InputStream directly.
+    % For manipulating values of type java.io.InputStream directly.
     %
-    % NOTE: we prefix this type with 'j' to avoid the name clash with the
+    % NOTE: we prefix this type with 'j' to avoid the name clash with Mercury's
     % standard library.
     %
 :- type jinput_stream.
