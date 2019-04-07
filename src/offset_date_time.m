@@ -10,45 +10,64 @@
 %
 %---------------------------------------------------------------------------%
 
-:- module jtime.offset_time.
+:- module jtime.offset_date_time.
 :- interface.
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.instant.
+:- import_module jtime.local_date.
+:- import_module jtime.local_date_time.
+:- import_module jtime.local_time.
+:- import_module jtime.offset_time.
 :- import_module jtime.zone_offset.
 
 :- import_module io.
 
 %---------------------------------------------------------------------------%
 
-:- type offset_time.
+:- type offset_date_time.
 
-:- func max = offset_time.
+:- func max = offset_date_time.
 
-:- func min = offset_time.
+:- func min = offset_date_time.
 
-:- func get_hour(offset_time) = int.
+:- func get_hour(offset_date_time) = int.
 
-:- func get_minute(offset_time) = int.
+:- func get_minute(offset_date_time) = int.
 
-:- func get_nano(offset_time) = int.
+:- func get_nano(offset_date_time) = int.
 
-:- func get_offset(offset_time) = zone_offset.
+:- func get_offset(offset_date_time) = zone_offset.
 
-:- func get_second(offset_time) = int.
+:- func get_second(offset_date_time) = int.
 
-:- pred is_before(offset_time::in, offset_time::in) is semidet.
+:- func get_year(offset_date_time) = int.
 
-:- pred is_after(offset_time::in, offset_time::in) is semidet.
+:- pred is_before(offset_date_time::in, offset_date_time::in) is semidet.
 
-:- pred now(offset_time::out, io::di, io::uo) is det.
+:- pred is_after(offset_date_time::in, offset_date_time::in) is semidet.
 
-:- pred parse(string::in, offset_time::out) is semidet.
+:- pred now(offset_date_time::out, io::di, io::uo) is det.
 
-:- pred parse(string::in, date_time_formatter::in, offset_time::out)
+:- pred parse(string::in, offset_date_time::out) is semidet.
+
+:- pred parse(string::in, date_time_formatter::in, offset_date_time::out)
     is semidet.
 
-:- func to_string(offset_time) = string.
+:- func to_epoch_second(offset_date_time) = int64.
+
+:- func to_instant(offset_date_time) = instant.
+
+:- func to_local_date(offset_date_time) = local_date.
+
+:- func to_local_date_time(offset_date_time) = local_date_time.
+
+:- func to_local_time(offset_date_time) = local_time.
+
+:- func to_offset_time(offset_date_time) = offset_time.
+
+:- func to_string(offset_date_time) = string.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -57,16 +76,16 @@
 
 :- interface.
 
-:- pred equals(offset_time::in, offset_time::in) is semidet.
+:- pred equals(offset_date_time::in, offset_date_time::in) is semidet.
 
-:- pred compare_to(comparison_result::uo, offset_time::in, offset_time::in)
-    is det.
+:- pred compare_to(comparison_result::uo, offset_date_time::in,
+    offset_date_time::in) is det.
 
 :- implementation.
 
-:- pragma foreign_type("Java", offset_time, "java.time.OffsetTime") where
-    equality is offset_time.equals,
-    comparison is offset_time.compare_to.
+:- pragma foreign_type("Java", offset_date_time, "java.time.OffsetDateTime")
+    where equality is offset_date_time.equals,
+    comparison is offset_date_time.compare_to.
 
 %---------------------------------------------------------------------------%
 
@@ -96,64 +115,73 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    max = (D::out),
+    max = (DT::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    D = java.time.OffsetTime.MAX;
+    DT = java.time.OffsetDateTime.MAX;
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    min = (D::out),
+    min = (DT::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    D = java.time.OffsetTime.MIN;
+    DT = java.time.OffsetDateTime.MIN;
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    get_hour(T::in) = (H::out),
+    get_hour(DT::in) = (H::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    H = T.getHour();
+    H = DT.getHour();
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    get_minute(T::in) = (M::out),
+    get_minute(DT::in) = (M::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    M = T.getMinute();
+    M = DT.getMinute();
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    get_offset(T::in) = (Z::out),
+    get_offset(DT::in) = (Z::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    Z = T.getOffset();
+    Z = DT.getOffset();
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    get_nano(T::in) = (N::out),
+    get_nano(DT::in) = (N::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    N = T.getNano();
+    N = DT.getNano();
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    get_second(T::in) = (S::out),
+    get_second(DT::in) = (S::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    S = T.getSecond();
+    S = DT.getSecond();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_year(DT::in) = (Y::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    Y = DT.getYear();
 ").
 
 %---------------------------------------------------------------------------%
@@ -177,23 +205,23 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    now(T::out, _IO0::di, _IO::uo),
+    now(DT::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    T = java.time.OffsetTime.now();
+    DT = java.time.OffsetDateTime.now();
 ").
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    parse(S::in, T::out),
+    parse(S::in, DT::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        T = java.time.OffsetTime.parse(S);
+        DT = java.time.OffsetDateTime.parse(S);
         SUCCESS_INDICATOR = true;
     } catch (java.time.format.DateTimeParseException e) {
-        T = null;
+        DT = null;
         SUCCESS_INDICATOR = false;
     }
 ").
@@ -201,14 +229,14 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    parse(S::in, Fmt::in, T::out),
+    parse(S::in, Fmt::in, DT::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        T = java.time.OffsetTime.parse(S, Fmt);
+        DT = java.time.OffsetDateTime.parse(S, Fmt);
         SUCCESS_INDICATOR = true;
     } catch (java.time.format.DateTimeParseException e) {
-        T = null;
+        DT = null;
         SUCCESS_INDICATOR = false;
     }
 ").
@@ -216,12 +244,66 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
-    to_string(T::in) = (S::out),
+    to_epoch_second(DT::in) = (S::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    S = T.toString();
+    S = DT.toEpochSecond();
 ").
 
 %---------------------------------------------------------------------------%
-:- end_module offset_time.
+
+:- pragma foreign_proc("Java",
+    to_instant(DT::in) = (I::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    I = DT.toInstant();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_date(DT::in) = (LD::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LD = DT.toLocalDate();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_date_time(DT::in) = (LDT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LDT = DT.toLocalDateTime();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_local_time(DT::in) = (LT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LT = DT.toLocalTime();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_offset_time(ODT::in) = (OT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    OT = ODT.toOffsetTime();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_string(DT::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = DT.toString();
+").
+
+%---------------------------------------------------------------------------%
+:- end_module offset_date_time.
 %---------------------------------------------------------------------------%
