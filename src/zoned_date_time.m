@@ -13,6 +13,8 @@
 :- module jtime.zoned_date_time.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
 :- import_module jtime.local_time.
@@ -23,6 +25,9 @@
 %---------------------------------------------------------------------------%
 
 :- type zoned_date_time.
+
+:- pred format(zoned_date_time::in, date_time_formatter::in, string::out)
+    is semidet.
 
 :- func get_day_of_month(zoned_date_time) = int.
 
@@ -43,6 +48,11 @@
 :- func get_year(zoned_date_time) = int.
 
 :- pred now(zoned_date_time::out, io::di, io::uo) is det.
+
+:- pred parse(string::in, zoned_date_time::out) is semidet.
+
+:- pred parse(string::in, date_time_formatter::in, zoned_date_time::out)
+    is semidet.
 
 :- func to_local_date(zoned_date_time) = local_date.
 
@@ -92,6 +102,21 @@
         Result = builtin.COMPARE_GREATER;
     } else {
         Result = builtin.COMPARE_EQUAL;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(ZDT::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = ZDT.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
     }
 ").
 
@@ -188,6 +213,36 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
+    parse(S::in, ZDT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ZDT = java.time.ZonedDateTime.parse(S);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        ZDT = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, Fmt::in, ZDT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ZDT = java.time.ZonedDateTime.parse(S, Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        ZDT = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
     to_local_date(ZDT::in) = (LD::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
@@ -202,7 +257,6 @@
 "
     LDT = ZDT.toLocalDateTime();
 ").
-
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",

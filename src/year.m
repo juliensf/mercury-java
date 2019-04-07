@@ -13,11 +13,14 @@
 :- module jtime.year.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
+
 :- import_module io.
 
-:- type year.
-
 %---------------------------------------------------------------------------%
+
+:- type year.
 
 :- pred is_after(year::in, year::in) is semidet.
 
@@ -25,7 +28,14 @@
 
 :- pred is_leap(year::in) is semidet.
 
+:- pred format(year::in, date_time_formatter::in, string::out) is semidet.
+
 :- pred now(year::out, io::di, io::uo) is det.
+
+:- pred parse(string::in, year::out) is semidet.
+
+:- pred parse(string::in, date_time_formatter::in, year::out)
+    is semidet.
 
 :- func to_string(year) = string.
 
@@ -45,6 +55,21 @@
 :- pragma foreign_type("Java", year, "java.time.Year") where
     equality is year.equals,
     comparison is year.compare_to.
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(Y::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = Y.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
 
 %---------------------------------------------------------------------------%
 
@@ -80,6 +105,36 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     Y = java.time.Year.now();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, Y::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Y = java.time.Year.parse(S);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        Y = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, Fmt::in, Y::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Y = java.time.Year.parse(S, Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        Y = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%

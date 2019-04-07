@@ -32,9 +32,18 @@
 
 :- func min = offset_date_time.
 
+:- pred format(offset_date_time::in, date_time_formatter::in, string::out)
+    is semidet.
+
+:- func get_day_of_month(offset_date_time) = int.
+
+:- func get_day_of_year(offset_date_time) = int.
+
 :- func get_hour(offset_date_time) = int.
 
 :- func get_minute(offset_date_time) = int.
+
+:- func get_month_value(offset_date_time) = int.
 
 :- func get_nano(offset_date_time) = int.
 
@@ -133,10 +142,52 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
+    format(ODT::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = ODT.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_day_of_month(DT::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = DT.getDayOfMonth();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_day_of_year(DT::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = DT.getDayOfYear();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
     get_hour(DT::in) = (H::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     H = DT.getHour();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_month_value(DT::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = DT.getMonthValue();
 ").
 
 %---------------------------------------------------------------------------%

@@ -27,6 +27,9 @@
 
 :- func min = offset_time.
 
+:- pred format(offset_time::in, date_time_formatter::in, string::out)
+    is semidet.
+
 :- func get_hour(offset_time) = int.
 
 :- func get_minute(offset_time) = int.
@@ -109,6 +112,21 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     D = java.time.OffsetTime.MIN;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(OT::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = OT.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%

@@ -13,6 +13,8 @@
 :- module jtime.duration.
 :- interface.
 
+%---------------------------------------------------------------------------%
+
 :- type duration.
 
 :- func zero = duration.
@@ -30,6 +32,14 @@
 :- func negated(duration) = duration.
 
 :- pred parse(string::in, duration::out) is semidet.
+
+:- func to_days(duration) = int64.
+
+:- func to_hours(duration) = int64.
+
+:- func to_minutes(duration) = int64.
+
+:- func to_nanos(duration) = int64.
 
 :- func to_string(duration) = string.
 
@@ -127,6 +137,42 @@
         D = null;
         SUCCESS_INDICATOR = false;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_days(D::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = D.toDays();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_hours(D::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = D.toHours();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_minutes(D::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = D.toMinutes();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_nanos(D::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = D.toNanos();
 ").
 
 %---------------------------------------------------------------------------%

@@ -17,6 +17,8 @@
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.local_date.
 :- import_module jtime.local_time.
+:- import_module jtime.offset_date_time.
+:- import_module jtime.zone_offset.
 
 :- import_module io.
 
@@ -27,6 +29,11 @@
 :- func min = local_date_time.
 
 :- func max = local_date_time.
+
+:- func at_offset(local_date_time, zone_offset) = offset_date_time.
+
+:- pred format(local_date_time::in, date_time_formatter::in, string::out)
+    is semidet.
 
 :- func get_day_of_month(local_date_time) = int.
 
@@ -57,11 +64,11 @@
 
 :- func of(local_date, local_time) = local_date_time.
 
-:- func to_string(local_date_time) = string.
-
 :- func to_local_date(local_date_time) = local_date.
 
 :- func to_local_time(local_date_time) = local_time.
+
+:- func to_string(local_date_time) = string.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -128,6 +135,30 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     DT = java.time.LocalDateTime.MAX;
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    at_offset(LDT::in, ZO::in) = (ODT::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ODT = LDT.atOffset(ZO);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(DT::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = DT.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%

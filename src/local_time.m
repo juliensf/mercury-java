@@ -34,6 +34,9 @@
 
 :- func at_date(local_time, local_date) = local_date_time.
 
+:- pred format(local_time::in, date_time_formatter::in, string::out)
+    is semidet.
+
 :- func get_hour(local_time) = int.
 
 :- func get_minute(local_time) = int.
@@ -151,6 +154,21 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     DT = T.atDate(D);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(T::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = T.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%
