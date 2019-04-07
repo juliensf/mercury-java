@@ -14,6 +14,9 @@
 :- interface.
 
 :- include_module file.
+:- include_module file_descriptor.
+:- include_module file_input_stream.
+:- include_module input_stream.
 :- include_module print_writer.
 
 %-----------------------------------------------------------------------------%
