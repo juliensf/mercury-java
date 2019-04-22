@@ -24,9 +24,8 @@
     pred close(T::in, io::di, io::uo) is det,
     pred mark(T::in, int::in, io::di, io::uo) is det,
     pred mark_supported(T::in, io::ui) is semidet,
-    pred read(T::in, io.result(uint)::out, io::di, io::uo) is det,
-    % TODO: read(byte[] b)
-    % TODO: read(byte[] b, int off, int len
+    pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo) is det,
+    % XXX TODO read multiple bytes.
     pred reset(T::in, io::di, io::uo) is det,
     pred skip(T::in, int64::in, io::di, io::uo) is det
 ].
@@ -65,7 +64,7 @@
     pred(close/3) is input_stream_close,
     pred(mark/4) is input_stream_mark,
     pred(mark_supported/2) is input_stream_mark_supported,
-    pred(read/4) is input_stream_read_byte,
+    pred(read_byte/4) is input_stream_read_byte,
     pred(reset/3) is input_stream_reset,
     pred(skip/4) is input_stream_skip
 ].
@@ -130,10 +129,10 @@ input_stream_close(Stream, !IO) :-
 
 :- pragma no_determinism_warning(input_stream_read_byte/4).
 :- pred input_stream_read_byte(jinput_stream::in,
-    io.result(uint)::out, io::di, io::uo) is det.
+    io.result(uint8)::out, io::di, io::uo) is det.
 
 input_stream_read_byte(_, _, _, _) :-
-    error("NYI read for InputStream").
+    error("NYI read (byte) for InputStream").
 
 :- pragma no_determinism_warning(input_stream_reset/3).
 :- pred input_stream_reset(jinput_stream::in,

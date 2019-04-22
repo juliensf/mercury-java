@@ -39,6 +39,7 @@
 :- import_module jlang.
 :- import_module jlang.throwable.
 
+:- import_module array.
 :- import_module bool.
 :- import_module exception.
 :- import_module require.
@@ -54,7 +55,7 @@
     pred(close/3) is file_input_stream_close,
     pred(mark/4) is file_input_stream_mark,
     pred(mark_supported/2) is file_input_stream_mark_supported,
-    pred(read/4) is file_input_stream_read_byte,
+    pred(read_byte/4) is file_input_stream_read_byte,
     pred(reset/3) is file_input_stream_reset,
     pred(skip/4) is file_input_stream_skip
 ].
@@ -119,10 +120,10 @@ file_input_stream_close(Stream, !IO) :-
 
 :- pragma no_determinism_warning(file_input_stream_read_byte/4).
 :- pred file_input_stream_read_byte(file_input_stream::in,
-    io.result(uint)::out, io::di, io::uo) is det.
+    io.result(uint8)::out, io::di, io::uo) is det.
 
 file_input_stream_read_byte(_, _, _, _) :-
-    error("NYI read for FileInputStream").
+    error("NYI read (byte) for FileInputStream").
 
 :- pragma no_determinism_warning(file_input_stream_reset/3).
 :- pred file_input_stream_reset(file_input_stream::in,

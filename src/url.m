@@ -13,8 +13,13 @@
 :- module jnet.url.
 :- interface.
 
+:- import_module jio.
+:- import_module jio.input_stream.
+:- import_module jlang.
+:- import_module jlang.throwable.
 :- import_module jnet.uri.
 
+:- import_module io.
 :- import_module maybe.
 
 %---------------------------------------------------------------------------%
@@ -42,6 +47,13 @@
 :- func get_ref(url) = maybe(string).
 
 :- func get_user_info(url) = maybe(string).
+
+:- pred open_stream(url::in, maybe_error(jinput_stream, throwable)::out,
+    io::di, io::uo) is det.
+
+:- func to_external_form(url) = string.
+
+:- func to_string(url) = string.
 
 :- func to_uri(url) = uri.
 
@@ -233,6 +245,54 @@ get_user_info(URL) = Result :-
 "
     UI = U.getUserInfo();
     Ok = (UI == null) ? bool.NO : bool.YES;
+").
+
+%---------------------------------------------------------------------------%
+
+open_stream(URL, Result, !IO) :-
+    do_open_stream(URL, IsOk, Stream, Throwable, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Stream)
+    ;
+        IsOk = no,
+        Result = error(Throwable)
+    ).
+
+:- pred do_open_stream(url::in, bool::out, jinput_stream::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_open_stream(U::in, IsOk::out, Stream::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Stream = U.openStream();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        Stream = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_external_form(U::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = U.toExternalForm();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    to_string(U::in) = (S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = U.toString();
 ").
 
 %---------------------------------------------------------------------------%
