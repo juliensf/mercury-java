@@ -18,15 +18,7 @@
 
 %---------------------------------------------------------------------------%
 
-    % Subclasses of OutputStream are instance of this type class.
-    %
-:- typeclass output_stream(T) where [
-    pred close(T::in, io::di, io::uo) is det,
-    pred flush(T::in, io::di, io::uo) is det,
-    pred write(T::in, uint::in, io::di, io::uo) is det
-].
-
-%---------------------------------------------------------------------------%
+:- typeclass output_stream(T) where [].
 
 :- type joutput_stream.
 
@@ -40,6 +32,14 @@
 :- instance stream(joutput_stream, io).
 :- instance output(joutput_stream, io).
 :- instance writer(joutput_stream, uint, io).
+
+%---------------------------------------------------------------------------%
+
+:- pred close(T::in, io::di, io::uo) is det <= output_stream(T).
+
+:- pred flush(T::in, io::di, io::uo) is det <= output_stream(T).
+
+:- pred write(T::in, uint::in, io::di, io::uo) is det <= output_stream(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -56,130 +56,116 @@
 
 :- pragma foreign_type("Java", joutput_stream, "java.io.OutputStream").
 
+:- instance output_stream(joutput_stream) where [].
+
 %---------------------------------------------------------------------------%
 
-:- instance output_stream(joutput_stream) where [
-    pred(close/3) is output_stream_close,
-    pred(flush/3) is output_stream_flush,
-    pred(write/4) is output_stream_write_byte
-].
+close(Stream, !IO) :-
+    do_close(Stream, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_close(T::in, bool::out, throwable::out, io::di, io::uo)
+    is det <= output_stream(T).
+:- pragma foreign_proc("Java",
+    do_close(Stream::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.OutputStream) Stream).close();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+flush(Stream, !IO) :-
+    do_flush(Stream, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_flush(T::in, bool::out, throwable::out, io::di, io::uo)
+    is det <= output_stream(T).
+:- pragma foreign_proc("Java",
+    do_flush(Stream::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.OutputStream) Stream).flush();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+write(Stream, Byte, !IO) :-
+    do_write_byte(Stream, Byte, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_write_byte(T::in, uint::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= output_stream(T).
+:- pragma foreign_proc("Java",
+    do_write_byte(Stream::in, Byte::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.OutputStream) Stream).write(Byte);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 
 :- instance stream(joutput_stream, io) where [
-    pred(name/4) is output_stream_name
+    pred(name/4) is output_stream.name
 ].
 
 :- instance output(joutput_stream, io) where [
     ( flush(Stream, !IO) :-
-        output_stream_flush(Stream, !IO)
+        output_stream.flush(Stream, !IO)
     )
 ].
 
 :- instance writer(joutput_stream, uint, io) where [
     ( put(Stream, Byte, !IO) :-
-        output_stream_write_byte(Stream, Byte, !IO)
+        output_stream.write(Stream, Byte, !IO)
     )
 ].
 
 %---------------------------------------------------------------------------%
 
-:- pred output_stream_name(joutput_stream::in, string::out, io::di, io::uo)
-    is det.
+:- pred name(joutput_stream::in, string::out, io::di, io::uo) is det.
 :- pragma foreign_proc("Java",
-    output_stream_name(Stream::in, Name::out, _IO0::di, _IO::uo),
+    name(Stream::in, Name::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     Name = Stream.toString();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred output_stream_close(joutput_stream::in, io::di, io::uo) is det.
-
-output_stream_close(Stream, !IO) :-
-    do_output_stream_close(Stream, IsOk, Error, !IO),
-    (
-        IsOk = yes
-    ;
-        IsOk = no,
-        throw(java_exception(Error))
-    ).
-
-:- pred do_output_stream_close(joutput_stream::in, bool::out, throwable::out,
-    io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    do_output_stream_close(Stream::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    try {
-        Stream.close();
-        IsOk = bool.YES;
-        Error = null;
-    } catch (java.io.IOException e) {
-        IsOk = bool.NO;
-        Error = e;
-    }
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred output_stream_flush(joutput_stream::in, io::di, io::uo) is det.
-
-output_stream_flush(Stream, !IO) :-
-    do_output_stream_flush(Stream, IsOk, Error, !IO),
-    (
-        IsOk = yes
-    ;
-        IsOk = no,
-        throw(java_exception(Error))
-    ).
-
-:- pred do_output_stream_flush(joutput_stream::in, bool::out, throwable::out,
-    io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    do_output_stream_flush(Stream::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    try {
-        Stream.flush();
-        IsOk = bool.YES;
-        Error = null;
-    } catch (java.io.IOException e) {
-        IsOk = bool.NO;
-        Error = e;
-    }
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred output_stream_write_byte(joutput_stream::in, uint::in,
-    io::di, io::uo) is det.
-
-output_stream_write_byte(Stream, Byte, !IO) :-
-    do_output_stream_write_byte(Stream, Byte, IsOk, Error, !IO),
-    (
-        IsOk = yes
-    ;
-        IsOk = no,
-        throw(java_exception(Error))
-    ).
-
-:- pred do_output_stream_write_byte(joutput_stream::in, uint::in,
-    bool::out, throwable::out, io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    do_output_stream_write_byte(Stream::in, Byte::in, IsOk::out, Error::out,
-        _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    try {
-        Stream.write(Byte);
-        IsOk = bool.YES;
-        Error = null;
-    } catch (java.io.IOException e) {
-        IsOk = bool.NO;
-        Error = e;
-    }
 ").
 
 %---------------------------------------------------------------------------%
