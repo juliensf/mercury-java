@@ -15,170 +15,96 @@
 
 :- import_module jnet.inet_address.
 
+:- import_module io.
+
+%---------------------------------------------------------------------------%
+
 :- type inet6_address.
 
 :- instance inet_address(inet6_address).
+
+%---------------------------------------------------------------------------%
+
+:- pred get_canonical_host_name(inet6_address::in, string::out,
+    io::di, io::uo) is det.
+
+:- pred get_host_address(inet6_address::in, string::out,
+    io::di, io::uo) is det.
+
+:- pred get_host_name(inet6_address::in, string::out,
+    io::di, io::uo) is det.
+
+:- pred is_any_local_address(inet6_address::in) is semidet.
+
+:- pred is_link_local_address(inet6_address::in) is semidet.
+
+:- pred is_loopback_address(inet6_address::in) is semidet.
+
+:- pred is_mc_global(inet6_address::in) is semidet.
+
+:- pred is_mc_link_local(inet6_address::in) is semidet.
+
+:- pred is_mc_node_local(inet6_address::in) is semidet.
+
+:- pred is_mc_org_local(inet6_address::in) is semidet.
+
+:- pred is_mc_site_local(inet6_address::in) is semidet.
+
+:- pred is_multicast_address(inet6_address::in) is semidet.
+
+:- func to_string(inet6_address) = string.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
 :- implementation.
 
-:- import_module io.
+%---------------------------------------------------------------------------%
 
 :- pragma foreign_type("Java", inet6_address, "java.net.Inet6Address").
 
-%---------------------------------------------------------------------------%
-
-:- instance inet_address(inet6_address) where [
-    pred(get_canonical_host_name/4) is inet6_address.get_canonical_host_name,
-    pred(get_host_address/4) is inet6_address.get_host_address,
-    pred(get_host_name/4) is inet6_address.get_host_name,
-    pred(is_any_local_address/1) is inet6_address.is_any_local_address,
-    pred(is_link_local_address/1) is inet6_address.is_link_local_address,
-    pred(is_loopback_address/1) is inet6_address.is_loopback_address,
-    pred(is_mc_global/1) is inet6_address.is_mc_global,
-    pred(is_mc_link_local/1) is inet6_address.is_mc_link_local,
-    pred(is_mc_node_local/1) is inet6_address.is_mc_node_local,
-    pred(is_mc_org_local/1) is inet6_address.is_mc_org_local,
-    pred(is_mc_site_local/1) is inet6_address.is_mc_site_local,
-    pred(is_multicast_address/1) is inet6_address.is_multicast_address,
-    func(to_string/1) is inet6_address.to_string
-].
+:- instance inet_address(inet6_address) where [].
 
 %---------------------------------------------------------------------------%
 
-:- pred get_canonical_host_name(inet6_address::in, string::out,
-    io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    get_canonical_host_name(IP::in, Name::out, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    Name = IP.getCanonicalHostName();
-").
+get_canonical_host_name(IP, Name, !IO) :-
+    inet_address.get_canonical_host_name(IP, Name, !IO).
 
-%---------------------------------------------------------------------------%
+get_host_address(IP, Addr, !IO) :-
+    inet_address.get_host_address(IP, Addr, !IO).
 
-:- pred get_host_address(inet6_address::in, string::out,
-    io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    get_host_address(IP::in, Addr::out, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    Addr = IP.getHostAddress();
-").
+get_host_name(IP, Name, !IO) :-
+    inet_address.get_host_name(IP, Name, !IO).
 
-%---------------------------------------------------------------------------%
+is_any_local_address(IP) :-
+    inet_address.is_any_local_address(IP).
 
-:- pred get_host_name(inet6_address::in, string::out,
-    io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    get_host_name(IP::in, Name::out, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    Name = IP.getHostAddress();
-").
+is_link_local_address(IP) :-
+    inet_address.is_link_local_address(IP).
 
-%---------------------------------------------------------------------------%
+is_loopback_address(IP) :-
+    inet_address.is_loopback_address(IP).
 
-:- pred is_any_local_address(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_any_local_address(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isAnyLocalAddress();
-").
+is_mc_global(IP) :-
+    inet_address.is_mc_global(IP).
 
-%---------------------------------------------------------------------------%
+is_mc_link_local(IP) :-
+    inet_address.is_mc_link_local(IP).
 
-:- pred is_link_local_address(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_link_local_address(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isLinkLocalAddress();
-").
+is_mc_node_local(IP) :-
+    inet_address.is_mc_node_local(IP).
 
-%---------------------------------------------------------------------------%
+is_mc_org_local(IP) :-
+    inet_address.is_mc_org_local(IP).
 
-:- pred is_loopback_address(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_loopback_address(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isLoopbackAddress();
-").
+is_mc_site_local(IP) :-
+    inet_address.is_mc_site_local(IP).
 
-%---------------------------------------------------------------------------%
+is_multicast_address(IP) :-
+    inet_address.is_multicast_address(IP).
 
-:- pred is_mc_global(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_mc_global(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCGlobal();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred is_mc_link_local(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_mc_link_local(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCLinkLocal();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred is_mc_node_local(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_mc_node_local(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCNodeLocal();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred is_mc_org_local(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_mc_org_local(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCOrgLocal();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred is_mc_site_local(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_mc_site_local(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCSiteLocal();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred is_multicast_address(inet6_address::in) is semidet.
-:- pragma foreign_proc("Java",
-    is_multicast_address(IP::in),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = IP.isMCSiteLocal();
-").
-
-
-%---------------------------------------------------------------------------%
-
-:- func to_string(inet6_address) = string.
-:- pragma foreign_proc("Java",
-    to_string(IP::in) = (S::out),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    S = IP.toString();
-").
+to_string(IP) =
+    inet_address.to_string(IP).
 
 %---------------------------------------------------------------------------%
 :- end_module inet6_address.
