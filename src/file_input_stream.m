@@ -25,6 +25,26 @@
 
 :- instance input_stream(file_input_stream).
 
+%---------------------------------------------------------------------------%
+
+:- pred available(file_input_stream::in, io.result(int)::out,
+    io::di, io::uo) is det.
+
+:- pred close(file_input_stream::in, io::di, io::uo) is det.
+
+:- pred mark(file_input_stream::in, int::in, io::di, io::uo) is det.
+
+:- pred mark_supported(file_input_stream::in, io::ui) is semidet.
+
+:- pred read_byte(file_input_stream::in, io.result(uint8)::out, io::di, io::uo)
+    is det.
+
+% XXX TODO read multiple bytes.
+
+:- pred reset(file_input_stream::in, io::di, io::uo) is det.
+
+:- pred skip(file_input_stream::in, int64::in, io::di, io::uo) is det.
+
 % :- pred get_channel(file_input_stream::in, file_channel::out,
 %    io::di, io::uo) is det.
 
@@ -50,94 +70,30 @@
 
 %---------------------------------------------------------------------------%
 
-:- instance input_stream(file_input_stream) where [
-    pred(available/4) is file_input_stream_available,
-    pred(close/3) is file_input_stream_close,
-    pred(mark/4) is file_input_stream_mark,
-    pred(mark_supported/2) is file_input_stream_mark_supported,
-    pred(read_byte/4) is file_input_stream_read_byte,
-    pred(reset/3) is file_input_stream_reset,
-    pred(skip/4) is file_input_stream_skip
-].
+:- instance input_stream(file_input_stream) where [].
 
 %---------------------------------------------------------------------------%
 
-:- pragma no_determinism_warning(file_input_stream_available/4).
-:- pred file_input_stream_available(file_input_stream::in,
-    io.result(int)::out, io::di, io::uo) is det.
+available(Stream, Result, !IO) :-
+    input_stream.available(Stream, Result, !IO).
 
-file_input_stream_available(_, _, _, _) :-
-    error("NYI available for FileInputStream").
+mark(Stream, N, !IO) :-
+    input_stream.mark(Stream, N, !IO).
 
-:- pragma no_determinism_warning(file_input_stream_mark/4).
-:- pred file_input_stream_mark(file_input_stream::in, int::in,
-    io::di, io::uo) is det.
+close(Stream, !IO) :-
+    input_stream.close(Stream, !IO).
 
-file_input_stream_mark(_, _, _, _) :-
-    error("NYI mark for FileInputStream").
+mark_supported(Stream, IO) :-
+    input_stream.mark_supported(Stream, IO).
 
-%---------------------------------------------------------------------------%
+read_byte(Stream, Result, !IO) :-
+    input_stream.read_byte(Stream, Result, !IO).
 
-:- pred file_input_stream_close(file_input_stream::in, io::di, io::uo) is det.
-file_input_stream_close(Stream, !IO) :-
-    do_file_input_stream_close(Stream, IsOk, Error, !IO),
-    (
-        IsOk = yes
-    ;
-        IsOk = no,
-        throw(java_exception(Error))
-    ).
+reset(Stream, !IO) :-
+    input_stream.reset(Stream, !IO).
 
-:- pred do_file_input_stream_close(file_input_stream::in, bool::out,
-    throwable::out, io::di, io::uo) is det.
-:- pragma foreign_proc("Java",
-    do_file_input_stream_close(Stream::in, IsOk::out, Error::out,
-        _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    try {
-        Stream.close();
-        IsOk = bool.YES;
-        Error = null;
-    } catch (java.io.IOException e) {
-        IsOk = bool.NO;
-        Error = e;
-    }
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred file_input_stream_mark_supported(file_input_stream::in,
-    io::ui) is semidet.
-:- pragma foreign_proc("Java",
-    file_input_stream_mark_supported(Stream::in, _IO::ui),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    SUCCESS_INDICATOR = Stream.markSupported();
-").
-
-%---------------------------------------------------------------------------%
-
-:- pragma no_determinism_warning(file_input_stream_read_byte/4).
-:- pred file_input_stream_read_byte(file_input_stream::in,
-    io.result(uint8)::out, io::di, io::uo) is det.
-
-file_input_stream_read_byte(_, _, _, _) :-
-    error("NYI read (byte) for FileInputStream").
-
-:- pragma no_determinism_warning(file_input_stream_reset/3).
-:- pred file_input_stream_reset(file_input_stream::in,
-    io::di, io::uo) is det.
-
-file_input_stream_reset(_, _, _) :-
-    error("NYI reset for FileInputStream").
-
-:- pragma no_determinism_warning(file_input_stream_skip/4).
-:- pred file_input_stream_skip(file_input_stream::in, int64::in,
-    io::di, io::uo) is det.
-
-file_input_stream_skip(_, _, _, _) :-
-    error("NYI skip for FileInputStream").
+skip(Stream, N, !IO) :-
+    input_stream.skip(Stream, N, !IO).
 
 %---------------------------------------------------------------------------%
 

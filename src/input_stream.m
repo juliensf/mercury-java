@@ -17,20 +17,7 @@
 
 %---------------------------------------------------------------------------%
 
-    % Subclasses of InputStream are instances of this type class.
-    %
-:- typeclass input_stream(T) where [
-    pred available(T::in, io.result(int)::out, io::di, io::uo) is det,
-    pred close(T::in, io::di, io::uo) is det,
-    pred mark(T::in, int::in, io::di, io::uo) is det,
-    pred mark_supported(T::in, io::ui) is semidet,
-    pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo) is det,
-    % XXX TODO read multiple bytes.
-    pred reset(T::in, io::di, io::uo) is det,
-    pred skip(T::in, int64::in, io::di, io::uo) is det
-].
-
-%---------------------------------------------------------------------------%
+:- typeclass input_stream(T) where [].
 
     % For manipulating values of type java.io.InputStream directly.
     %
@@ -40,6 +27,25 @@
 :- type jinput_stream.
 
 :- instance input_stream(jinput_stream).
+
+%---------------------------------------------------------------------------%
+
+:- pred available(T::in, io.result(int)::out, io::di, io::uo)
+    is det <= input_stream(T).
+
+:- pred close(T::in, io::di, io::uo) is det <= input_stream(T).
+
+:- pred mark(T::in, int::in, io::di, io::uo) is det <= input_stream(T).
+
+:- pred mark_supported(T::in, io::ui) is semidet <= input_stream(T).
+
+:- pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo)
+    is det <= input_stream(T).
+
+% XXX TODO read multiple bytes.
+:- pred reset(T::in, io::di, io::uo) is det <= input_stream(T).
+
+:- pred skip(T::in, int64::in, io::di, io::uo) is det <= input_stream(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -59,36 +65,22 @@
 
 %---------------------------------------------------------------------------%
 
-:- instance input_stream(jinput_stream) where [
-    pred(available/4) is input_stream_available,
-    pred(close/3) is input_stream_close,
-    pred(mark/4) is input_stream_mark,
-    pred(mark_supported/2) is input_stream_mark_supported,
-    pred(read_byte/4) is input_stream_read_byte,
-    pred(reset/3) is input_stream_reset,
-    pred(skip/4) is input_stream_skip
-].
-
+:- instance input_stream(jinput_stream) where [].
 %---------------------------------------------------------------------------%
 
-:- pragma no_determinism_warning(input_stream_available/4).
-:- pred input_stream_available(jinput_stream::in,
-    io.result(int)::out, io::di, io::uo) is det.
+:- pragma no_determinism_warning(available/4).
 
-input_stream_available(_, _, _, _) :-
+available(_, _, _, _) :-
     error("NYI available for InputStream").
 
-:- pragma no_determinism_warning(input_stream_mark/4).
-:- pred input_stream_mark(jinput_stream::in, int::in,
-    io::di, io::uo) is det.
+:- pragma no_determinism_warning(mark/4).
 
-input_stream_mark(_, _, _, _) :-
+mark(_, _, _, _) :-
     error("NYI mark for InputStream").
 
 %---------------------------------------------------------------------------%
 
-:- pred input_stream_close(jinput_stream::in, io::di, io::uo) is det.
-input_stream_close(Stream, !IO) :-
+close(Stream, !IO) :-
     do_input_stream_close(Stream, IsOk, Error, !IO),
     (
         IsOk = yes
@@ -97,15 +89,15 @@ input_stream_close(Stream, !IO) :-
         throw(java_exception(Error))
     ).
 
-:- pred do_input_stream_close(jinput_stream::in, bool::out,
-    throwable::out, io::di, io::uo) is det.
+:- pred do_input_stream_close(T::in, bool::out,
+    throwable::out, io::di, io::uo) is det <= input_stream(T).
 :- pragma foreign_proc("Java",
     do_input_stream_close(Stream::in, IsOk::out, Error::out,
         _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        Stream.close();
+        ((java.io.InputStream) Stream).close();
         IsOk = bool.YES;
         Error = null;
     } catch (java.io.IOException e) {
@@ -116,36 +108,28 @@ input_stream_close(Stream, !IO) :-
 
 %---------------------------------------------------------------------------%
 
-:- pred input_stream_mark_supported(jinput_stream::in,
-    io::ui) is semidet.
 :- pragma foreign_proc("Java",
-    input_stream_mark_supported(Stream::in, _IO::ui),
+    mark_supported(Stream::in, _IO::ui),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
-    SUCCESS_INDICATOR = Stream.markSupported();
+    SUCCESS_INDICATOR = ((java.io.InputStream) Stream).markSupported();
 ").
 
 %---------------------------------------------------------------------------%
 
-:- pragma no_determinism_warning(input_stream_read_byte/4).
-:- pred input_stream_read_byte(jinput_stream::in,
-    io.result(uint8)::out, io::di, io::uo) is det.
+:- pragma no_determinism_warning(read_byte/4).
 
-input_stream_read_byte(_, _, _, _) :-
+read_byte(_, _, _, _) :-
     error("NYI read (byte) for InputStream").
 
-:- pragma no_determinism_warning(input_stream_reset/3).
-:- pred input_stream_reset(jinput_stream::in,
-    io::di, io::uo) is det.
+:- pragma no_determinism_warning(reset/3).
 
-input_stream_reset(_, _, _) :-
+reset(_, _, _) :-
     error("NYI reset for InputStream").
 
-:- pragma no_determinism_warning(input_stream_skip/4).
-:- pred input_stream_skip(jinput_stream::in, int64::in,
-    io::di, io::uo) is det.
+:- pragma no_determinism_warning(skip/4).
 
-input_stream_skip(_, _, _, _) :-
+skip(_, _, _, _) :-
     error("NYI skip for InputStream").
 
 %---------------------------------------------------------------------------%
