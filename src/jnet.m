@@ -13,10 +13,12 @@
 :- module jnet.
 :- interface.
 
+:- include_module http_url_connection.
 :- include_module inet_address.
 :- include_module inet4_address.
 :- include_module inet6_address.
 :- include_module url.
+:- include_module url_connection.
 :- include_module uri.
 
 %-----------------------------------------------------------------------------%

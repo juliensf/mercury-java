@@ -17,6 +17,7 @@
 :- import_module jio.input_stream.
 :- import_module jlang.
 :- import_module jlang.throwable.
+:- import_module jnet.url_connection.
 :- import_module jnet.uri.
 
 :- import_module io.
@@ -47,6 +48,9 @@
 :- func get_ref(url) = maybe(string).
 
 :- func get_user_info(url) = maybe(string).
+
+:- pred open_connection(url::in, maybe_error(url_connection, throwable)::out,
+    io::di, io::uo) is det.
 
 :- pred open_stream(url::in, maybe_error(jinput_stream, throwable)::out,
     io::di, io::uo) is det.
@@ -245,6 +249,36 @@ get_user_info(URL) = Result :-
 "
     UI = U.getUserInfo();
     Ok = (UI == null) ? bool.NO : bool.YES;
+").
+
+%---------------------------------------------------------------------------%
+
+open_connection(URL, Result, !IO) :-
+    do_open_connection(URL, IsOk, Connection, Throwable, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Connection)
+    ;
+        IsOk = no,
+        Result = error(Throwable)
+    ).
+
+:- pred do_open_connection(url::in, bool::out, url_connection::out,
+    throwable::out, io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_open_connection(U::in, IsOk::out, C::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = U.openConnection();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
