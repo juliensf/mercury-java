@@ -23,6 +23,10 @@
 
 :- instance inet_address(inet6_address).
 
+:- pred from_inet_address(inet_address::in, inet6_address::out) is semidet.
+
+:- func to_inet_address(inet6_address) = inet_address.
+
 %---------------------------------------------------------------------------%
 
 :- pred get_canonical_host_name(inet6_address::in, string::out,
@@ -64,6 +68,28 @@
 :- pragma foreign_type("Java", inet6_address, "java.net.Inet6Address").
 
 :- instance inet_address(inet6_address) where [].
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    from_inet_address(IP::in, IP6::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        IP6 = (java.net.Inet6Address) IP;
+        SUCCESS_INDICATOR = true;
+    } catch (java.lang.ClassCastException e) {
+        IP6 = null;
+        SUCCESS_INDICATOR = false;
+    }
+").
+
+:- pragma foreign_proc("Java",
+    to_inet_address(IP6::in) = (IP::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    IP = (java.net.InetAddress) IP6;
+").
 
 %---------------------------------------------------------------------------%
 
