@@ -49,16 +49,25 @@
     io::di, io::uo) is det <= inet_address(I).
 
 %---------------------------------------------------------------------------%
+
 :- pred bind(S::in, A::in, io::di, io::uo) is det
     <= (socket(S), socket_address(A)).
 
-%:- pred connect(S::in, A::in, io::di, io::uo) is det
-%    <= (socket(S), socket_address(A)).
-
-%:- pred connect(S::in, A::in, int::in, io::di, io::uo) is det
-%    <= (socket(S), socket_address(A)).
-
 :- pred close(S::in, io::di, io::uo) is det <= socket(S).
+
+:- pred connect(S::in, A::in, io::di, io::uo) is det
+    <= (socket(S), socket_address(A)).
+
+:- pred connect(S::in, A::in, int::in, io::di, io::uo) is det
+    <= (socket(S), socket_address(A)).
+
+% get_channel
+
+:- func get_inet_address(S::in, io::ui) = (maybe(inet_address)::out)
+    is det <= socket(S).
+
+:- func get_local_address(S::in, io::ui) = (inet_address::out)
+    is det <= socket(S).
 
 :- pred get_input_stream(S::in, maybe_error(jinput_stream, throwable)::out,
     io::di, io::uo) is det <= socket(S).
@@ -156,7 +165,6 @@ new_socket(IP, Port, Result, !IO) :-
 
 %---------------------------------------------------------------------------%
 
-
 bind(S, A, !IO) :-
     do_bind(S, A, IsOk, Error, !IO),
     (
@@ -207,6 +215,99 @@ close(S, !IO) :-
         IsOk = bool.NO;
         Error = e;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+connect(S, A, !IO) :-
+    do_connect(S, A, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_connect(S::in, A::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= (socket(S), socket_address(A)).
+:- pragma foreign_proc("Java",
+    do_connect(S::in, A::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).connect((java.net.SocketAddress) A);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (
+        java.io.IOException |
+        java.nio.channels.IllegalBlockingModeException |
+        java.lang.IllegalArgumentException e
+    ) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+connect(S, A, Timeout, !IO) :-
+    do_connect(S, A, Timeout, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_connect(S::in, A::in, int::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= (socket(S), socket_address(A)).
+:- pragma foreign_proc("Java",
+    do_connect(S::in, A::in, T::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).connect((java.net.SocketAddress) A, T);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (
+        java.io.IOException |
+        java.nio.channels.IllegalBlockingModeException |
+        java.lang.IllegalArgumentException e
+    ) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_inet_address(S, IO) = Result :-
+    do_get_inet_address(S, HaveResult, InetAddr, IO),
+    (
+        HaveResult = yes,
+        Result = yes(InetAddr)
+    ;
+        HaveResult = no,
+        Result = no
+    ).
+
+:- pred do_get_inet_address(S::in, bool::out, inet_address::out, io::ui) is det
+    <= socket(S).
+:- pragma foreign_proc("Java",
+    do_get_inet_address(S::in, HaveResult::out, IA::out, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    IA = ((java.net.Socket) S).getInetAddress();
+    HaveResult = (IA != null ? bool.YES : bool.NO);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_local_address(S::in, _IO::ui) = (IA::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    IA = ((java.net.Socket) S).getLocalAddress();
 ").
 
 %---------------------------------------------------------------------------%
