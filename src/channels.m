@@ -6,19 +6,15 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
+% A Mercury wrapper for the java.nio.channels package.
+%
 %-----------------------------------------------------------------------------%
 
-:- module mercury_java.
+:- module jnio.channels.
 :- interface.
 
-:- import_module jio.
-:- import_module jlang.
-:- import_module jnet.
-:- import_module jnio.
-:- import_module jutil.
-:- import_module jtext.
-:- import_module jtime.
+:- include_module channel.
 
 %-----------------------------------------------------------------------------%
-:- end_module mercury_java.
+:- end_module jnio.channels.
 %-----------------------------------------------------------------------------%
