@@ -19,6 +19,7 @@
 :- import_module jlang.
 :- import_module jlang.throwable.
 :- import_module jnet.inet_address.
+:- import_module jnet.proxy.
 :- import_module jnet.socket_address.
 
 :- import_module io.
@@ -32,9 +33,22 @@
 :- type socket.
 :- instance socket(socket).
 
+%---------------------------------------------------------------------------%
+%
+% Wrappers for Socket constructors.
+%
+
+    % Socket().
+:- pred new_unconnected_socket(socket::out, io::di, io::uo) is det.
+
+    % Socket(Proxy proxy)
+:- pred new_unconnected_socket(proxy::in, maybe_error(socket, throwable)::out,
+    io::di, io::uo) is det.
+
 :- pred new_socket(I::in, uint16::in, maybe_error(socket, throwable)::out,
     io::di, io::uo) is det <= inet_address(I).
 
+%---------------------------------------------------------------------------%
 :- pred bind(S::in, A::in, io::di, io::uo) is det
     <= (socket(S), socket_address(A)).
 
@@ -68,6 +82,47 @@
 
 :- pragma foreign_type("Java", socket, "java.net.Socket").
 :- instance socket(socket) where [].
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    new_unconnected_socket(S::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    S = new java.net.Socket();
+").
+
+%---------------------------------------------------------------------------%
+
+new_unconnected_socket(Proxy, Result, !IO) :-
+    do_new_unconnected_socket(Proxy, IsOk, Socket, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Socket)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_new_unconnected_socket(proxy::in, bool::out, socket::out,
+    throwable::out, io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_new_unconnected_socket(P::in, IsOk::out, S::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = new java.net.Socket(P);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (
+        java.lang.IllegalArgumentException | java.lang.SecurityException e
+    ) {
+        S = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 

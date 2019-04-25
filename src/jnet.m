@@ -18,6 +18,7 @@
 :- include_module inet4_address.
 :- include_module inet6_address.
 :- include_module inet_socket_address.
+:- include_module proxy.
 :- include_module socket.
 :- include_module socket_address.
 :- include_module url.
