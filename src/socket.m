@@ -75,6 +75,16 @@
 :- pred get_output_stream(S::in, maybe_error(joutput_stream, throwable)::out,
     io::di, io::uo) is det <= socket(S).
 
+:- pred is_bound(S::in, io::ui) is semidet <= socket(S).
+
+:- pred is_closed(S::in, io::ui) is semidet <= socket(S).
+
+:- pred is_connected(S::in, io::ui) is semidet <= socket(S).
+
+:- pred is_input_shutdown(S::in, io::ui) is semidet <= socket(S).
+
+:- pred is_output_shutdown(S::in, io::ui) is semidet <= socket(S).
+
 :- pred shutdown_input(S::in, io::di, io::uo) is det <= socket(S).
 
 :- pred shutdown_output(S::in, io::di, io::uo) is det <= socket(S).
@@ -368,6 +378,51 @@ get_output_stream(S, Result, !IO) :-
         IsOk = bool.NO;
         Error = e;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_bound(S::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.net.Socket) S).isBound();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_closed(S::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.net.Socket) S).isClosed();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_connected(S::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.net.Socket) S).isConnected();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_input_shutdown(S::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.net.Socket) S).isInputShutdown();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    is_output_shutdown(S::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.net.Socket) S).isOutputShutdown();
 ").
 
 %---------------------------------------------------------------------------%
