@@ -100,6 +100,24 @@
 :- pred get_remote_socket_address(S::in, maybe(socket_address)::out,
     io::di, io::uo) is det <= socket(S).
 
+:- pred get_reuse_address(S::in, maybe_error(bool, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_send_buffer_size(S::in, maybe_error(int, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_so_linger(S::in, maybe_error(int, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_so_timeout(S::in, maybe_error(int, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_tcp_no_delay(S::in, maybe_error(bool, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_traffic_class(S::in, maybe_error(uint8, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
 :- pred is_bound(S::in, io::ui) is semidet <= socket(S).
 
 :- pred is_closed(S::in, io::ui) is semidet <= socket(S).
@@ -110,10 +128,28 @@
 
 :- pred is_output_shutdown(S::in, io::ui) is semidet <= socket(S).
 
+:- pred send_urgent_data(S::in, uint8::in, io::di, io::uo)
+    is det <= socket(S).
+
 :- pred set_keep_alive(S::in, bool::in, io::di, io::uo)
     is det <= socket(S).
 
 :- pred set_oob_inline(S::in, bool::in, io::di, io::uo)
+    is det <= socket(S).
+
+:- pred set_reuse_address(S::in, bool::in, io::di, io::uo)
+    is det <= socket(S).
+
+:- pred set_performance_preferences(S::in, int::in, int::in, int::in,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred set_receive_buffer_size(S::in, int::in, io::di, io::uo)
+    is det <= socket(S).
+
+:- pred set_send_buffer_size(S::in, int::in, io::di, io::uo)
+    is det <= socket(S).
+
+:- pred set_so_linger(S::in, bool::in, int::in, io::di, io::uo)
     is det <= socket(S).
 
 :- pred set_so_timeout(S::in, int::in, io::di, io::uo)
@@ -630,6 +666,186 @@ get_remote_socket_address(S, Result, !IO) :-
 
 %---------------------------------------------------------------------------%
 
+get_reuse_address(S, Result, !IO) :-
+    do_get_reuse_address(S, ReuseAddr, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(ReuseAddr)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_reuse_address(S::in, bool::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_reuse_address(S::in, RA::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        RA = ((java.net.Socket) S).getReuseAddress() ? bool.YES : bool.NO;
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        RA = bool.NO;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_send_buffer_size(S, Result, !IO) :-
+    do_get_send_buffer_size(S, Size, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Size)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_send_buffer_size(S::in, int::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_send_buffer_size(S::in, Size::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Size = ((java.net.Socket) S).getSendBufferSize();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        Size = 0;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_so_linger(S, Result, !IO) :-
+    do_get_so_linger(S, TO, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(TO)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_so_linger(S::in, int::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_so_linger(S::in, TO::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        TO = ((java.net.Socket) S).getSoLinger();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        TO = 0;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_so_timeout(S, Result, !IO) :-
+    do_get_so_timeout(S, TO, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(TO)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_so_timeout(S::in, int::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_so_timeout(S::in, TO::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        TO = ((java.net.Socket) S).getSoTimeout();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        TO = 0;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_tcp_no_delay(S, Result, !IO) :-
+    do_get_tcp_no_delay(S, NoDelay, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(NoDelay)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_tcp_no_delay(S::in, bool::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_tcp_no_delay(S::in, NoDelay::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        NoDelay = ((java.net.Socket) S).getTcpNoDelay() ? bool.YES : bool.NO;
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        NoDelay = bool.NO;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_traffic_class(S, Result, !IO) :-
+    do_get_traffic_class(S, TCInt, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(det_from_int(TCInt))
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_traffic_class(S::in, int::out, bool::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_get_traffic_class(S::in, TC::out, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        TC = ((java.net.Socket) S).getTrafficClass();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        TC = 0;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     is_bound(S::in, _IO::ui),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -671,6 +887,34 @@ get_remote_socket_address(S, Result, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     SUCCESS_INDICATOR = ((java.net.Socket) S).isOutputShutdown();
+").
+
+%---------------------------------------------------------------------------%
+
+send_urgent_data(S, Byte, !IO) :-
+    do_send_urgent_data(S, to_int(Byte), IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_send_urgent_data(S::in, int::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_send_urgent_data(S::in, Byte::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).sendUrgentData(Byte);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -724,6 +968,128 @@ set_oob_inline(S, On, !IO) :-
         IsOk = bool.YES;
         Error = null;
     } catch (java.net.SocketException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+set_reuse_address(S, On, !IO) :-
+    do_set_reuse_address(S, On, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_set_reuse_address(S::in, bool::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_set_reuse_address(S::in, On::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).setReuseAddress(On.equals(bool.YES));
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    set_performance_preferences(S::in, CT::in, L::in, BW::in,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ((java.net.Socket) S).setPerformancePreferences(CT, L, BW);
+").
+
+%---------------------------------------------------------------------------%
+
+set_receive_buffer_size(S, Size, !IO) :-
+    do_set_receive_buffer_size(S, Size, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_set_receive_buffer_size(S::in, int::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_set_receive_buffer_size(S::in, Size::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).setReceiveBufferSize(Size);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException | java.lang.IllegalArgumentException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+set_send_buffer_size(S, Size, !IO) :-
+    do_set_send_buffer_size(S, Size, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_set_send_buffer_size(S::in, int::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_set_send_buffer_size(S::in, Size::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).setSendBufferSize(Size);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException | java.lang.IllegalArgumentException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+set_so_linger(S, On, Linger, !IO) :-
+    do_set_so_linger(S, On, Linger, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_set_so_linger(S::in, bool::in, int::in, bool::out,
+    throwable::out, io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_set_so_linger(S::in, On::in, Linger::in, IsOk::out,
+        Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.Socket) S).setSoLinger(On.equals(bool.YES), Linger);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException | java.lang.IllegalArgumentException e) {
         IsOk = bool.NO;
         Error = e;
     }
