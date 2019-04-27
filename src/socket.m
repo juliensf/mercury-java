@@ -22,6 +22,7 @@
 :- import_module jnet.proxy.
 :- import_module jnet.socket_address.
 
+:- import_module bool.
 :- import_module io.
 :- import_module maybe.
 :- import_module uint16.
@@ -66,10 +67,22 @@
 :- func get_inet_address(S::in, io::ui) = (maybe(inet_address)::out)
     is det <= socket(S).
 
+:- pred get_input_stream(S::in, maybe_error(jinput_stream, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_keep_alive(S::in, maybe_error(bool, throwable)::out,
+    io::di, io::uo) is det <= socket(S).
+
 :- func get_local_address(S::in, io::ui) = (inet_address::out)
     is det <= socket(S).
 
-:- pred get_input_stream(S::in, maybe_error(jinput_stream, throwable)::out,
+:- pred get_local_port(S::in, maybe(uint16)::out, io::di, io::uo)
+    is det <= socket(S).
+
+:- pred get_local_socket_address(S::in, maybe(socket_address)::out,
+    io::di, io::uo) is det <= socket(S).
+
+:- pred get_oob_inline(S::in, maybe_error(bool, throwable)::out,
     io::di, io::uo) is det <= socket(S).
 
 :- pred get_output_stream(S::in, maybe_error(joutput_stream, throwable)::out,
@@ -94,7 +107,6 @@
 
 :- implementation.
 
-:- import_module bool.
 :- import_module exception.
 
 %---------------------------------------------------------------------------%
@@ -313,15 +325,6 @@ get_inet_address(S, IO) = Result :-
 
 %---------------------------------------------------------------------------%
 
-:- pragma foreign_proc("Java",
-    get_local_address(S::in, _IO::ui) = (IA::out),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    IA = ((java.net.Socket) S).getLocalAddress();
-").
-
-%---------------------------------------------------------------------------%
-
 get_input_stream(S, Result, !IO) :-
     do_get_input_stream(S, IsOk, InputStream, Error, !IO),
     (
@@ -345,6 +348,118 @@ get_input_stream(S, Result, !IO) :-
         Error = null;
     } catch (java.io.IOException e) {
         IS = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+get_keep_alive(S, Result, !IO) :-
+    do_get_keep_alive(S, IsOk, KeepAlive, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(KeepAlive)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_keep_alive(S::in, bool::out, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_get_keep_alive(S::in, IsOk::out, KeepAlive::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        KeepAlive = ((java.net.Socket) S).getKeepAlive() ? bool.YES : bool.NO;
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        KeepAlive = bool.NO;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_local_address(S::in, _IO::ui) = (IA::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    IA = ((java.net.Socket) S).getLocalAddress();
+").
+
+%---------------------------------------------------------------------------%
+
+get_local_port(S, Result, !IO) :-
+    do_get_local_port(S, PortAsInt, !IO),
+    ( if PortAsInt = -1 then
+        Result = no
+    else
+        Port = det_from_int(PortAsInt),
+        Result = yes(Port)
+    ).
+
+:- pred do_get_local_port(S::in, int::out, io::di, io::uo)
+    is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_get_local_port(S::in, P::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    P = ((java.net.Socket) S).getLocalPort();
+").
+
+%---------------------------------------------------------------------------%
+
+get_local_socket_address(S, Result, !IO) :-
+    do_get_local_socket_address(S, HaveSA, SA, !IO),
+    (
+        HaveSA = no,
+        Result = no
+    ;
+        HaveSA = yes,
+        Result = yes(SA)
+    ).
+
+:- pred do_get_local_socket_address(S::in, bool::out, socket_address::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_get_local_socket_address(S::in, HaveSA::out, SA::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SA = ((java.net.Socket) S).getLocalSocketAddress();
+    HaveSA = (SA != null ? bool.YES : bool.NO);
+").
+
+%---------------------------------------------------------------------------%
+
+get_oob_inline(S, Result, !IO) :-
+    do_get_oob_inline(S, IsOk, OOBInline, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(OOBInline)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_get_oob_inline(S::in, bool::out, bool::out, throwable::out,
+    io::di, io::uo) is det <= socket(S).
+:- pragma foreign_proc("Java",
+    do_get_oob_inline(S::in, IsOk::out, OOBInline::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        OOBInline = ((java.net.Socket) S).getOOBInline() ? bool.YES : bool.NO;
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.net.SocketException e) {
+        OOBInline = bool.NO;
         IsOk = bool.NO;
         Error = e;
     }
