@@ -14,10 +14,12 @@
 :- interface.
 
 :- import_module io.
-:- import_module maybe.
 
 :- import_module jio.input_stream.
 :- import_module jio.reader.
+:- import_module jnio.
+:- import_module jnio.jcharset.
+:- import_module jnio.jcharset.charset.
 
 %---------------------------------------------------------------------------%
 
@@ -32,9 +34,8 @@
 :- pred new_input_stream_reader(IS::in, input_stream_reader::out,
     io::di, io::uo) is det <= input_stream(IS).
 
-%:- pred new_input_stream_reader(IS::in, string::in,
-%    maybe_error(input_stream_reader, throwable)::out, io::di, io::uo)
-%    is det <= input_stream(IS).
+:- pred new_input_stream_reader(IS::in, CS::in, input_stream_reader::out,
+    io::di, io::uo) is det <= (input_stream(IS), charset(CS)).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -54,6 +55,16 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     ISR = new java.io.InputStreamReader((java.io.InputStream) IS);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    new_input_stream_reader(IS::in, CS::in, ISR::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ISR = new java.io.InputStreamReader((java.io.InputStream) IS,
+        (java.nio.charset.Charset) CS);
 ").
 
 %---------------------------------------------------------------------------%
