@@ -17,8 +17,10 @@
 :- include_module file_descriptor.
 :- include_module file_input_stream.
 :- include_module input_stream.
+:- include_module input_stream_reader.
 :- include_module output_stream.
 :- include_module print_writer.
+:- include_module reader.
 
 %-----------------------------------------------------------------------------%
 :- end_module jio.

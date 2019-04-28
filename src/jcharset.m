@@ -6,16 +6,19 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
-% A Mercury wrapper for the java.nio package.
+% A Mercury wrapper for the java.nio.charset package.
+%
+% NOTE: we prefix the name of this module with 'j' in order to avoid the
+% name clash with the wrapper for the Charset class.
 %
 %-----------------------------------------------------------------------------%
 
-:- module jnio.
+:- module jnio.jcharset.
 :- interface.
 
-:- include_module channels.
-:- include_module jcharset.  % Prefix with 'j to avoid clash with Charset.
+:- include_module charset.
+:- include_module standard_charsets.
 
 %-----------------------------------------------------------------------------%
-:- end_module jnio.
+:- end_module jnio.jcharset.
 %-----------------------------------------------------------------------------%
