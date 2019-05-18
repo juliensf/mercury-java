@@ -40,6 +40,9 @@
 :- pred read(R::in, stream.result(char, throwable)::out,
     io::di, io::uo) is det <= buffered_reader(R).
 
+:- pred read_line(R::in, stream.result(string, throwable)::out,
+    io::di, io::uo) is det <= buffered_reader(R).
+
 :- pred ready(R::in, io::ui) is semidet <= buffered_reader(R).
 
 :- pred reset(R::in, io::di, io::uo) is det <= buffered_reader(R).
@@ -48,6 +51,10 @@
 %---------------------------------------------------------------------------%
 
 :- implementation.
+
+:- import_module bool.
+
+%---------------------------------------------------------------------------%
 
 :- pragma foreign_type("Java", buffered_reader, "java.io.BufferedReader").
 
@@ -79,6 +86,44 @@ ready(R, IO) :-
 
 reset(R, !IO) :-
     reader.reset(R, !IO).
+
+%---------------------------------------------------------------------------%
+
+read_line(R, Result, !IO) :-
+    do_read_line(R, Line, AtEof, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        (
+            AtEof = yes,
+            Result = eof
+        ;
+            AtEof = no,
+            Result = ok(Line)
+        )
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_read_line(R::in, string::out, bool::out, bool::out,
+    throwable::out, io::di, io::uo) is det <= buffered_reader(R).
+:- pragma foreign_proc("Java",
+    do_read_line(R::in, Line::out, AtEof::out, IsOk::out,
+        Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Line = ((java.io.BufferedReader) R).readLine();
+        AtEof = (Line == null) ? bool.YES : bool.NO;
+        IsOk =  bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        AtEof = bool.NO;
+        Line = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 :- end_module jio.buffered_reader.
