@@ -27,6 +27,12 @@
 :- type reader.
 :- instance reader(reader).
 
+:- instance stream(reader, io).
+:- instance input(reader, io).
+:- instance reader(reader, char, io, throwable).
+
+%---------------------------------------------------------------------------%
+
 :- pred close(R::in, io::di, io::uo) is det <= reader(R).
 
 %:- pred mark(R::in, int::in, io::di, io::uo) is det <= reader(R)
@@ -38,9 +44,9 @@
 
 :- pred ready(R::in, io::ui) is semidet <= reader(R).
 
-%:- pred reset(R::in, io::di, io::uo) is det <= reader(R).
+:- pred reset(R::in, io::di, io::uo) is det <= reader(R).
 
-%:- pred skip(R::in, int64::int, io::di, io::uo) is det <= reader(R).
+%:- pred skip(R::in, int64::in, io::di, io::uo) is det <= reader(R).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -58,6 +64,20 @@
 :- pragma foreign_type("Java", reader, "java.io.Reader").
 
 :- instance reader(reader) where [].
+
+%---------------------------------------------------------------------------%
+
+:- instance stream(reader, io) where [
+    ( name(_Stream, Name, !IO) :-
+        Name = "<<java.io.Reader>>"
+    )
+].
+
+:- instance input(reader, io) where [].
+
+:- instance reader(reader, char, io, throwable) where [
+    pred(get/4) is reader.read
+].
 
 %---------------------------------------------------------------------------%
 
@@ -160,6 +180,33 @@ ready(R, IO) :-
     } catch (java.io.IOException e) {
         IsOk = bool.NO;
         IsReady = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+reset(R, !IO) :-
+    do_reset(R, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_reset(R::in, bool::out, throwable::out, io::di, io::uo) is det
+    <= reader(R).
+:- pragma foreign_proc("Java",
+    do_reset(R::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.Reader) R).reset();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
         Error = e;
     }
 ").

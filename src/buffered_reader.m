@@ -29,12 +29,20 @@
 :- instance buffered_reader(buffered_reader).
 :- instance reader(buffered_reader).
 
+:- instance stream(buffered_reader, io).
+:- instance input(buffered_reader, io).
+:- instance reader(buffered_reader, char, io, throwable).
+
+%---------------------------------------------------------------------------%
+
 :- pred close(R::in, io::di, io::uo) is det <= buffered_reader(R).
 
 :- pred read(R::in, stream.result(char, throwable)::out,
     io::di, io::uo) is det <= buffered_reader(R).
 
 :- pred ready(R::in, io::ui) is semidet <= buffered_reader(R).
+
+:- pred reset(R::in, io::di, io::uo) is det <= buffered_reader(R).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -46,6 +54,18 @@
 :- instance buffered_reader(buffered_reader) where [].
 :- instance reader(buffered_reader) where [].
 
+:- instance stream(buffered_reader, io) where [
+    ( name(_Stream, Name, !IO) :-
+        Name = "<<java.io.BufferedReader>>"
+    )
+].
+
+:- instance input(buffered_reader, io) where [].
+
+:- instance reader(buffered_reader, char, io, throwable) where [
+    pred(get/4) is buffered_reader.read
+].
+
 %---------------------------------------------------------------------------%
 
 close(R, !IO) :-
@@ -56,6 +76,9 @@ read(R, Result, !IO) :-
 
 ready(R, IO) :-
     reader.ready(R, IO).
+
+reset(R, !IO) :-
+    reader.reset(R, !IO).
 
 %---------------------------------------------------------------------------%
 :- end_module jio.buffered_reader.

@@ -30,6 +30,8 @@
 :- type java_exception
     --->    java_exception(throwable).
 
+:- instance error(throwable).
+
 %---------------------------------------------------------------------------%
 
 :- func get_message(throwable) = maybe(string).
@@ -56,6 +58,20 @@
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_type("Java", throwable, "java.lang.Throwable").
+
+%---------------------------------------------------------------------------%
+
+:- instance error(throwable) where [
+    (  error_message(T) = Msg :-
+        MaybeMsg = get_message(T),
+        (
+            MaybeMsg = yes(Msg)
+        ;
+            MaybeMsg = no,
+            Msg = ""
+        )
+    )
+].
 
 %---------------------------------------------------------------------------%
 
