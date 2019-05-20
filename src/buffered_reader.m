@@ -52,6 +52,9 @@
 
 :- pred reset(R::in, io::di, io::uo) is det <= buffered_reader(R).
 
+:- pred skip(R::in, int64::in, int64::out, io::di, io::uo)
+    is det <= buffered_reader(R).
+
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
@@ -100,6 +103,9 @@ ready(R, IO) :-
 
 reset(R, !IO) :-
     reader.reset(R, !IO).
+
+skip(R, ToSkip, Skipped, !IO) :-
+    reader.skip(R, ToSkip, Skipped, !IO).
 
 %---------------------------------------------------------------------------%
 

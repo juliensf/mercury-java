@@ -46,7 +46,8 @@
 
 :- pred reset(R::in, io::di, io::uo) is det <= reader(R).
 
-%:- pred skip(R::in, int64::in, io::di, io::uo) is det <= reader(R).
+:- pred skip(R::in, int64::in, int64::out, io::di, io::uo)
+    is det <= reader(R).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -57,7 +58,9 @@
 :- import_module jlang.throwable.
 
 :- import_module bool.
+:- import_module int64.
 :- import_module exception.
+:- import_module require.
 
 %---------------------------------------------------------------------------%
 
@@ -206,6 +209,40 @@ reset(R, !IO) :-
         IsOk = bool.YES;
         Error = null;
     } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+skip(R, ToSkip, Skipped, !IO) :-
+    ( if ToSkip < 0i64 then
+        unexpected("jio.reader.skip", "skip amount is negative")
+    else
+        do_skip(R, ToSkip, IsOk, Skipped0, Error, !IO),
+        (
+            IsOk  = yes,
+            Skipped = Skipped0
+        ;
+            IsOk = no,
+            throw(java_exception(Error))
+        )
+    ).
+
+:- pred do_skip(R::in, int64::in, bool::out, int64::out, throwable::out,
+    io::di, io::uo) is det <= reader(R).
+:- pragma foreign_proc("Java",
+    do_skip(R::in, ToSkip::in, IsOk::out, Skipped::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Skipped = ((java.io.Reader) R).skip(ToSkip);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        Skipped = 0;
         IsOk = bool.NO;
         Error = e;
     }

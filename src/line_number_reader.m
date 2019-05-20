@@ -62,6 +62,9 @@
 :- pred set_line_number(R::in, int::in, io::di, io::uo) is det
     <= line_number_reader(R).
 
+:- pred skip(R::in, int64::in, int64::out, io::di, io::uo)
+    is det <= line_number_reader(R).
+
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
@@ -122,6 +125,9 @@ read_line(R, Result, !IO) :-
 
 reset(R, !IO) :-
     reader.reset(R, !IO).
+
+skip(R, ToSkip, Skipped, !IO) :-
+    reader.skip(R, ToSkip, Skipped, !IO).
 
 %---------------------------------------------------------------------------%
 
