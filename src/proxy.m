@@ -174,7 +174,8 @@ address(P) = Result :-
             T = jmercury.jnet__proxy.PROXY_TYPE_SOCKS;
             break;
         default:
-            throw new java.lang.RuntimeException(""unknown proxy type"");
+            throw new jmercury.runtime.UnreachableDefault(
+                ""unknown proxy type"");
     }
 ").
 
