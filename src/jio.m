@@ -23,6 +23,7 @@
 :- include_module output_stream.
 :- include_module print_writer.
 :- include_module reader.
+:- include_module writer.
 
 %-----------------------------------------------------------------------------%
 :- end_module jio.

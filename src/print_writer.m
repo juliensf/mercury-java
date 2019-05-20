@@ -14,6 +14,7 @@
 :- interface.
 
 :- import_module jio.file.
+:- import_module jio.writer.
 
 :- import_module bool.
 :- import_module char.
@@ -24,6 +25,9 @@
 %---------------------------------------------------------------------------%
 
 :- type print_writer.
+:- typeclass print_writer(W) <= writer(W) where [].
+:- instance writer(print_writer).
+:- instance print_writer(print_writer).
 
 :- instance stream(print_writer, io).
 :- instance output(print_writer, io).
@@ -40,7 +44,15 @@
 
 :- pred check_error(print_writer::in, bool::out, io::di, io::uo) is det.
 
-:- pred close(print_writer::in, io::di, io::uo) is det.
+:- pred close(W::in, io::di, io::uo) is det <= print_writer(W).
+
+:- pred flush(W::in, io::di, io::uo) is det <= print_writer(W).
+
+:- pred write_char(W::in, char::in, io::di, io::uo)
+    is det <= print_writer(W).
+
+:- pred write_string(W::in, string::in, io::di, io::uo)
+    is det <= print_writer(W).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -49,6 +61,9 @@
 
 :- pragma foreign_type("Java", print_writer, "java.io.PrintWriter").
 
+:- instance writer(print_writer) where [].
+:- instance print_writer(print_writer) where [].
+
 %---------------------------------------------------------------------------%
 
 :- instance stream(print_writer, io) where [
@@ -56,7 +71,7 @@
 ].
 
 :- instance output(print_writer, io) where [
-    pred(flush/3) is do_flush
+    pred(flush/3) is print_writer.flush
 ].
 
 :- instance writer(print_writer, char, io) where [
@@ -108,17 +123,6 @@ print_writer(File, Result, !IO) :-
         Ok = bool.NO;
         ErrMsg = e.getMessage();
     }
-").
-
-%---------------------------------------------------------------------------%
-
-:- pred do_flush(print_writer::in, io::di, io::uo) is det.
-
-:- pragma foreign_proc("Java",
-    do_flush(PW::in, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    PW.flush();
 ").
 
 %---------------------------------------------------------------------------%
@@ -187,12 +191,17 @@ print_writer(File, Result, !IO) :-
 
 %---------------------------------------------------------------------------%
 
-:- pragma foreign_proc("Java",
-    close(PW::in, _IO0::di, _IO::uo),
-    [will_not_call_mercury, promise_pure, thread_safe],
-"
-    PW.close();
-").
+close(PW, !IO) :-
+    writer.close(PW, !IO).
+
+flush(PW, !IO) :-
+    writer.flush(PW, !IO).
+
+write_char(PW, C, !IO) :-
+    writer.write_char(PW, C, !IO).
+
+write_string(PW, S, !IO) :-
+    writer.write_string(PW, S, !IO).
 
 %---------------------------------------------------------------------------%
 :- end_module print_writer.
