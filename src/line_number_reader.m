@@ -46,6 +46,10 @@
 
 :- pred close(R::in, io::di, io::uo) is det <= line_number_reader(R).
 
+:- pred mark(R::in, int::in, io::di, io::uo) is det <= line_number_reader(R).
+
+:- pred mark_supported(R::in, io::ui) is semidet <= line_number_reader(R).
+
 :- func get_line_number(R::in, io::ui) = (int::out) is det
     <= line_number_reader(R).
 
@@ -113,6 +117,12 @@
 
 close(R, !IO) :-
     reader.close(R, !IO).
+
+mark(R, L, !IO) :-
+    reader.mark(R, L, !IO).
+
+mark_supported(R, IO) :-
+    reader.mark_supported(R, IO).
 
 read(R, Result, !IO) :-
     reader.read(R, Result, !IO).

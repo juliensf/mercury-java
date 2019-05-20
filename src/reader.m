@@ -35,9 +35,9 @@
 
 :- pred close(R::in, io::di, io::uo) is det <= reader(R).
 
-%:- pred mark(R::in, int::in, io::di, io::uo) is det <= reader(R)
+:- pred mark(R::in, int::in, io::di, io::uo) is det <= reader(R).
 
-%:- pred mark_supported(R::in, io::ui) is semidet <= reader(R).
+:- pred mark_supported(R::in, io::ui) is semidet <= reader(R).
 
 :- pred read(R::in, stream.result(char, throwable)::out,
     io::di, io::uo) is det <= reader(R).
@@ -106,6 +106,42 @@ close(R, !IO) :-
         IsOk = bool.NO;
         Error = e;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+mark(R, Limit, !IO) :-
+    do_mark(R, Limit, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_mark(R::in, int::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= reader(R).
+:- pragma foreign_proc("Java",
+    do_mark(R::in, Limit::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.Reader) R).mark(Limit);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    mark_supported(R::in, _IO::ui),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    SUCCESS_INDICATOR = ((java.io.Reader) R).markSupported();
 ").
 
 %---------------------------------------------------------------------------%

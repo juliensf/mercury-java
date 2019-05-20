@@ -42,6 +42,10 @@
 
 :- pred close(R::in, io::di, io::uo) is det <= buffered_reader(R).
 
+:- pred mark_supported(R::in, io::ui) is semidet <= buffered_reader(R).
+
+:- pred mark(R::in, int::in, io::di, io::uo) is det <= buffered_reader(R).
+
 :- pred read(R::in, stream.result(char, throwable)::out,
     io::di, io::uo) is det <= buffered_reader(R).
 
@@ -94,6 +98,12 @@
 
 close(R, !IO) :-
     reader.close(R, !IO).
+
+mark(R, L, !IO) :-
+    reader.mark(R, L, !IO).
+
+mark_supported(R, IO) :-
+    reader.mark_supported(R, IO).
 
 read(R, Result, !IO) :-
     reader.read(R, Result, !IO).
