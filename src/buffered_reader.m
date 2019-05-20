@@ -35,6 +35,11 @@
 
 %---------------------------------------------------------------------------%
 
+:- pred new_buffered_reader(R::in, buffered_reader::out, io::di, io::uo)
+    is det <= reader(R).
+
+%---------------------------------------------------------------------------%
+
 :- pred close(R::in, io::di, io::uo) is det <= buffered_reader(R).
 
 :- pred read(R::in, stream.result(char, throwable)::out,
@@ -72,6 +77,15 @@
 :- instance reader(buffered_reader, char, io, throwable) where [
     pred(get/4) is buffered_reader.read
 ].
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    new_buffered_reader(R::in, BR::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    BR = new java.io.BufferedReader((java.io.Reader) R);
+").
 
 %---------------------------------------------------------------------------%
 

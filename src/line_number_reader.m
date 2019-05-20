@@ -39,6 +39,11 @@
 
 %---------------------------------------------------------------------------%
 
+:- pred new_line_number_reader(R::in, line_number_reader::out,
+    io::di, io::uo) is det <= reader(R).
+
+%---------------------------------------------------------------------------%
+
 :- pred close(R::in, io::di, io::uo) is det <= line_number_reader(R).
 
 :- func get_line_number(R::in, io::ui) = (int::out) is det
@@ -91,6 +96,15 @@
         set_line_number(R, N, !IO)
     )
 ].
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    new_line_number_reader(R::in, LNR::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    LNR = new java.io.LineNumberReader((java.io.Reader) R);
+").
 
 %---------------------------------------------------------------------------%
 
