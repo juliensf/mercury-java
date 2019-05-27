@@ -43,6 +43,8 @@
 
 :- pred flush(W::in, io::di, io::uo) is det <= buffered_writer(W).
 
+:- pred new_line(W::in, io::di, io::uo) is det <= buffered_writer(W).
+
 :- pred write_char(W::in, char::in, io::di, io::uo) is det
     <= buffered_writer(W).
 
@@ -54,6 +56,11 @@
 
 :- implementation.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
+:- import_module bool.
+:- import_module exception.
 :- import_module int.
 :- import_module require.
 
@@ -103,17 +110,44 @@ new_buffered_writer(W, Size, BW, !IO) :-
 
 %---------------------------------------------------------------------------%
 
-close(PW, !IO) :-
-    writer.close(PW, !IO).
+close(BW, !IO) :-
+    writer.close(BW, !IO).
 
-flush(PW, !IO) :-
-    writer.flush(PW, !IO).
+flush(BW, !IO) :-
+    writer.flush(BW, !IO).
 
-write_char(PW, C, !IO) :-
-    writer.write_char(PW, C, !IO).
+write_char(BW, C, !IO) :-
+    writer.write_char(BW, C, !IO).
 
-write_string(PW, S, !IO) :-
-    writer.write_string(PW, S, !IO).
+write_string(BW, S, !IO) :-
+    writer.write_string(BW, S, !IO).
+
+%---------------------------------------------------------------------------%
+
+new_line(BW, !IO) :-
+    do_new_line(BW, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_new_line(W::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= buffered_writer(W).
+:- pragma foreign_proc("Java",
+    do_new_line(W::in, IsOk::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.BufferedWriter) W).newLine();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 :- end_module jio.buffered_writer.
