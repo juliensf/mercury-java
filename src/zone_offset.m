@@ -13,7 +13,11 @@
 :- module jtime.zone_offset.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
 :- type zone_offset.
+:- instance temporal_accessor(zone_offset).
 
 %---------------------------------------------------------------------------%
 
@@ -46,6 +50,8 @@
 :- pragma foreign_type("Java", zone_offset, "java.time.ZoneOffset") where
     equality is zone_offset.equals,
     comparison is zone_offset.compare_to.
+
+:- instance temporal_accessor(zone_offset) where [].
 
 %---------------------------------------------------------------------------%
 

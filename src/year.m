@@ -15,12 +15,16 @@
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
 
 :- import_module io.
 
 %---------------------------------------------------------------------------%
 
 :- type year.
+:- instance temporal_accessor(year).
 
 :- pred is_after(year::in, year::in) is semidet.
 
@@ -55,6 +59,8 @@
 :- pragma foreign_type("Java", year, "java.time.Year") where
     equality is year.equals,
     comparison is year.compare_to.
+
+:- instance temporal_accessor(year) where [].
 
 %---------------------------------------------------------------------------%
 

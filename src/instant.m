@@ -13,9 +13,15 @@
 :- module jtime.instant.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
 :- import_module io.
 
 :- type instant.
+:- instance temporal(instant).
+:- instance temporal_accessor(instant).
 
 %---------------------------------------------------------------------------%
 
@@ -71,6 +77,9 @@
 :- pragma foreign_type("Java", instant, "java.time.Instant") where
     equality is instant.equals,
     comparison is instant.compare_to.
+
+:- instance temporal(instant) where [].
+:- instance temporal_accessor(instant) where [].
 
 %---------------------------------------------------------------------------%
 

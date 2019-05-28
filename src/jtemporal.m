@@ -6,28 +6,16 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
-% A Mercury wrapper for the java.time package.
+% A Mercury wrapper for the java.time.temporal package.
 %
 %-----------------------------------------------------------------------------%
 
-:- module jtime.
+:- module jtime.jtemporal.
 :- interface.
 
-:- include_module jtemporal.
-
-:- include_module duration.
-:- include_module format.
-:- include_module instant.
-:- include_module local_date.
-:- include_module local_date_time.
-:- include_module local_time.
-:- include_module offset_date_time.
-:- include_module offset_time.
-:- include_module year.
-:- include_module year_month.
-:- include_module zoned_date_time.
-:- include_module zone_offset.
+:- include_module temporal.
+:- include_module temporal_accessor.
 
 %-----------------------------------------------------------------------------%
-:- end_module jtime.
+:- end_module jtime.jtemporal.
 %-----------------------------------------------------------------------------%

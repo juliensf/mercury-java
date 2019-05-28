@@ -15,6 +15,8 @@
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
 :- import_module jtime.local_time.
@@ -25,6 +27,7 @@
 %---------------------------------------------------------------------------%
 
 :- type zoned_date_time.
+:- instance temporal_accessor(zoned_date_time).
 
 :- pred format(zoned_date_time::in, date_time_formatter::in, string::out)
     is semidet.
@@ -79,6 +82,8 @@
 :- pragma foreign_type("Java", zoned_date_time, "java.time.ZonedDateTime")
     where equality is zoned_date_time.equals,
     comparison is zoned_date_time.compare_to.
+
+:- instance temporal_accessor(zoned_date_time) where [].
 
 %---------------------------------------------------------------------------%
 

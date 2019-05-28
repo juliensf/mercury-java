@@ -13,11 +13,14 @@
 :- module jtime.year_month.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 
 :- import_module io.
 
 :- type year_month.
+:- instance temporal_accessor(year_month).
 
 %---------------------------------------------------------------------------%
 
@@ -56,6 +59,8 @@
 :- pragma foreign_type("Java", year_month, "java.time.YearMonth") where
     equality is year_month.equals,
     comparison is year_month.compare_to.
+
+:- instance temporal_accessor(year_month) where [].
 
 %---------------------------------------------------------------------------%
 

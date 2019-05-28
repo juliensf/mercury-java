@@ -15,6 +15,9 @@
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
 :- import_module jtime.zone_offset.
 
 :- import_module io.
@@ -22,6 +25,7 @@
 %---------------------------------------------------------------------------%
 
 :- type offset_time.
+:- instance temporal_accessor(offset_time).
 
 :- func max = offset_time.
 
@@ -70,6 +74,8 @@
 :- pragma foreign_type("Java", offset_time, "java.time.OffsetTime") where
     equality is offset_time.equals,
     comparison is offset_time.compare_to.
+
+:- instance temporal_accessor(offset_time) where [].
 
 %---------------------------------------------------------------------------%
 

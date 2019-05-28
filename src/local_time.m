@@ -15,6 +15,8 @@
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
 
@@ -23,6 +25,8 @@
 :- import_module io.
 
 :- type local_time.
+
+:- instance temporal_accessor(local_time).
 
 :- func max = local_time.
 
@@ -85,6 +89,8 @@
 :- pragma foreign_type("Java", local_time, "java.time.LocalTime") where
     equality is local_time.equals,
     comparison is local_time.compare_to.
+
+:- instance temporal_accessor(local_time) where [].
 
 %---------------------------------------------------------------------------%
 
