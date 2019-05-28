@@ -13,6 +13,8 @@
 :- module jio.console.
 :- interface.
 
+:- import_module jio.print_writer.
+:- import_module jio.reader.
 :- import_module jlang.
 :- import_module jlang.throwable.
 
@@ -28,6 +30,13 @@
 
 :- pred read_line(console::in, stream.result(string, throwable)::out,
     io::di, io::uo) is det.
+
+:- pred read_line(console::in, string::in,
+    stream.result(string, throwable)::out, io::di, io::uo) is det.
+
+:- pred reader(console::in, reader::out, io::di, io::uo) is det.
+
+:- pred writer(console::in, print_writer::out, io::di, io::uo) is det.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -85,6 +94,62 @@ read_line(C, Result, !IO) :-
         IsOk = bool.NO;
         Error = e;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+read_line(C, Prompt, Result, !IO) :-
+    do_read_line(C, Prompt, Line, AtEof, IsOk, Error, !IO),
+    (
+        IsOk = yes,
+        (
+            AtEof = yes,
+            Result = eof
+        ;
+            AtEof = no,
+            Result = ok(Line)
+        )
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_read_line(console::in, string::in, string::out, bool::out,
+    bool::out, throwable::out, io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_read_line(C::in, P::in, Line::out, AtEof::out, IsOk::out,
+        Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Line = C.readLine(P);
+        AtEof = (Line == null) ? bool.YES : bool.NO;
+        IsOk =  bool.YES;
+        Error = null;
+    } catch (java.io.IOError e) {
+        AtEof = bool.NO;
+        Line = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    reader(C::in, R::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    R = C.reader();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    writer(C::in, PW::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    PW = C.writer();
 ").
 
 %---------------------------------------------------------------------------%
