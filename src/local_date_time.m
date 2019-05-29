@@ -16,6 +16,7 @@
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_time.
@@ -27,7 +28,7 @@
 %---------------------------------------------------------------------------%
 
 :- type local_date_time.
-
+:- instance temporal(local_date_time).
 :- instance temporal_accessor(local_date_time).
 
 :- func min = local_date_time.
@@ -98,6 +99,7 @@
     equality is local_date_time.equals,
     comparison is local_date_time.compare_to.
 
+:- instance temporal(local_date_time) where [].
 :- instance temporal_accessor(local_date_time) where [].
 
 %---------------------------------------------------------------------------%

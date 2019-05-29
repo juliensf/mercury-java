@@ -16,6 +16,7 @@
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
@@ -27,6 +28,7 @@
 %---------------------------------------------------------------------------%
 
 :- type zoned_date_time.
+:- instance temporal(zoned_date_time).
 :- instance temporal_accessor(zoned_date_time).
 
 :- pred format(zoned_date_time::in, date_time_formatter::in, string::out)
@@ -83,6 +85,7 @@
     where equality is zoned_date_time.equals,
     comparison is zoned_date_time.compare_to.
 
+:- instance temporal(zoned_date_time) where [].
 :- instance temporal_accessor(zoned_date_time) where [].
 
 %---------------------------------------------------------------------------%
