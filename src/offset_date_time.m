@@ -17,6 +17,7 @@
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.instant.
 :- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_date_time.
@@ -29,6 +30,7 @@
 %---------------------------------------------------------------------------%
 
 :- type offset_date_time.
+:- instance temporal(offset_date_time).
 :- instance temporal_accessor(offset_date_time).
 
 :- func max = offset_date_time.
@@ -99,6 +101,7 @@
     where equality is offset_date_time.equals,
     comparison is offset_date_time.compare_to.
 
+:- instance temporal(offset_date_time) where [].
 :- instance temporal_accessor(offset_date_time) where [].
 
 %---------------------------------------------------------------------------%
