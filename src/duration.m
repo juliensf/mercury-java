@@ -21,6 +21,8 @@
 
 :- func abs(duration) = duration.
 
+:- func divided_by(duration, int64) = duration.
+
 :- func get_nano(duration) = int.
 
 :- func get_seconds(duration) = int64.
@@ -29,7 +31,35 @@
 
 :- pred is_zero(duration::in) is semidet.
 
+:- func minus(duration, duration) = duration.
+
+:- func minus_days(duration, int64) = duration.
+
+:- func minus_hours(duration, int64) = duration.
+
+:- func minus_millis(duration, int64) = duration.
+
+:- func minus_minutes(duration, int64) = duration.
+
+:- func minus_nanos(duration, int64) = duration.
+
+:- func minus_seconds(duration, int64) = duration.
+
+:- func multiplied_by(duration, int64) = duration.
+
 :- func negated(duration) = duration.
+
+:- func of_days(int64) = duration.
+
+:- func of_hours(int64) = duration.
+
+:- func of_millis(int64) = duration.
+
+:- func of_minutes(int64) = duration.
+
+:- func of_nanos(int64) = duration.
+
+:- func of_seconds(int64) = duration.
 
 :- pred parse(string::in, duration::out) is semidet.
 
@@ -57,6 +87,14 @@
 
 :- implementation.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
+:- import_module bool.
+:- import_module exception.
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_type("Java", duration, "java.time.Duration") where
     equality is duration.equals,
     comparison is duration.compare_to.
@@ -77,6 +115,34 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     AD = D.abs();
+").
+
+%---------------------------------------------------------------------------%
+
+divided_by(Duration, Divisor) = Result :-
+    do_divided_by(Duration, Divisor, IsOk, Result, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_divided_by(duration::in, int64::in, bool::out, duration::out,
+    throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_divided_by(D::in, Div::in, IsOk::out, Result::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Result = D.dividedBy(Div);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        Result = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -117,11 +183,402 @@
 
 %---------------------------------------------------------------------------%
 
+minus(A, B) = C :-
+    do_minus(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus(duration::in, duration::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minus(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_days(A, B) = C :-
+    do_minus_days(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_days(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_days(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusDays(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_hours(A, B) = C :-
+    do_minus_hours(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_hours(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_hours(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusHours(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_millis(A, B) = C :-
+    do_minus_millis(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_millis(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_millis(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusMillis(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_minutes(A, B) = C :-
+    do_minus_minutes(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_minutes(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_minutes(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusMinutes(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_nanos(A, B) = C :-
+    do_minus_nanos(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_nanos(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_nanos(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusNanos(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_seconds(A, B) = C :-
+    do_minus_seconds(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_seconds(duration::in, int64::in, bool::out,
+    duration::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_seconds(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusSeconds(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+multiplied_by(Duration, Multiplicand) = Result :-
+    do_multiplied_by(Duration, Multiplicand, IsOk, Result, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_multiplied_by(duration::in, int64::in, bool::out, duration::out,
+    throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_multiplied_by(D::in, M::in, IsOk::out, Result::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Result = D.multipliedBy(M);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        Result = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     negated(D::in) = (ND::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     ND = D.negated();
+").
+
+%---------------------------------------------------------------------------%
+
+of_days(N) = D :-
+    do_of_days(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_days(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_days(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofDays(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+%---------------------------------------------------------------------------%
+
+of_hours(N) = D :-
+    do_of_hours(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_hours(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_hours(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofHours(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+of_millis(N) = D :-
+    do_of_millis(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_millis(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_millis(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofMillis(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+of_minutes(N) = D :-
+    do_of_minutes(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_minutes(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_minutes(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofMinutes(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+of_nanos(N) = D :-
+    do_of_nanos(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_nanos(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_nanos(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofNanos(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+of_seconds(N) = D :-
+    do_of_seconds(N, IsOk, D, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of_seconds(int64::in, bool::out, duration::out, throwable::out)
+    is det.
+:- pragma foreign_proc("Java",
+    do_of_seconds(N::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.ofSeconds(N);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
