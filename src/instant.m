@@ -39,6 +39,12 @@
 
 :- pred is_before(instant::in, instant::in) is semidet.
 
+:- func minus_millis(instant, int64) = instant.
+
+:- func minus_nanos(instant, int64) = instant.
+
+:- func minus_seconds(instant, int64) = instant.
+
 :- pred now(instant::out, io::di, io::uo) is det.
 
 :- func of_epoch_milli(int64) = instant.
@@ -48,6 +54,12 @@
 :- func of_epoch_second(int64, int64) = instant.
 
 :- pred parse(string::in, instant::out) is semidet.
+
+:- func plus_millis(instant, int64) = instant.
+
+:- func plus_nanos(instant, int64) = instant.
+
+:- func plus_seconds(instant, int64) = instant.
 
 :- func to_epoch_milli(instant) = int64.
 
@@ -142,6 +154,90 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     SUCCESS_INDICATOR = A.isBefore(B);
+").
+
+%---------------------------------------------------------------------------%
+
+minus_millis(A, B) = C :-
+    do_minus_millis(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_millis(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_millis(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusMillis(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_nanos(A, B) = C :-
+    do_minus_nanos(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_nanos(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_nanos(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusNanos(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+minus_seconds(A, B) = C :-
+    do_minus_seconds(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus_seconds(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_minus_seconds(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.minusSeconds(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -252,6 +348,90 @@ of_epoch_second(S, NA) = Instant :-
     } catch (java.time.format.DateTimeParseException e) {
         I = null;
         SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus_millis(A, B) = C :-
+    do_plus_millis(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus_millis(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_plus_millis(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.plusMillis(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus_nanos(A, B) = C :-
+    do_plus_nanos(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus_nanos(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_plus_nanos(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.plusNanos(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus_seconds(A, B) = C :-
+    do_plus_seconds(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus_seconds(instant::in, int64::in, bool::out,
+    instant::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_plus_seconds(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.plusSeconds(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException | java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
     }
 ").
 
