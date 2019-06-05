@@ -37,6 +37,10 @@
 
 :- func minus_years(period, int64) = period.
 
+:- func multiplied_by(period, int) = period.
+
+:- pred parse(string::in, period::out) is semidet.
+
 :- func plus_days(period, int64) = period.
 
 :- func plus_months(period, int64) = period.
@@ -211,6 +215,49 @@ minus_years(A, B) = C :-
         C = null;
         IsOk = bool.NO;
         Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+multiplied_by(Period, Multiplicand) = Result :-
+    do_multiplied_by(Period, Multiplicand, IsOk, Result, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_multiplied_by(period::in, int::in, bool::out, period::out,
+    throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_multiplied_by(P::in, M::in, IsOk::out, Result::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Result = P.multipliedBy(M);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.ArithmeticException e) {
+        Result = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    parse(S::in, P::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        P = java.time.Period.parse(S);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.format.DateTimeParseException e) {
+        P = null;
+        SUCCESS_INDICATOR = false;
     }
 ").
 
