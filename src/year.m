@@ -37,10 +37,14 @@
 
 :- pred now(year::out, io::di, io::uo) is det.
 
+:- func of(int) = year.
+
 :- pred parse(string::in, year::out) is semidet.
 
 :- pred parse(string::in, date_time_formatter::in, year::out)
     is semidet.
+
+:- func plus_years(year, int64) = year.
 
 :- func to_string(year) = string.
 
@@ -56,6 +60,12 @@
 :- pred compare_to(comparison_result::uo, year::in, year::in) is det.
 
 :- implementation.
+
+:- import_module jlang.
+:- import_module jlang.throwable.
+
+:- import_module bool.
+:- import_module exception.
 
 :- pragma foreign_type("Java", year, "java.time.Year") where
     equality is year.equals,
@@ -117,6 +127,33 @@
 
 %---------------------------------------------------------------------------%
 
+of(IsoYear) = Year :-
+    do_of(IsoYear, IsOk, Year, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_of(int::in, bool::out, year::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_of(I::in, IsOk::out, Y::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        Y = java.time.Year.of(I);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException e) {
+        Y = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     parse(S::in, Y::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -142,6 +179,34 @@
     } catch (java.time.format.DateTimeParseException e) {
         Y = null;
         SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus_years(A, B) = C :-
+    do_plus_years(A, B, IsOk, C, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus_years(year::in, int64::in, bool::out,
+    year::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_plus_years(A::in, B::in, IsOk::out, C::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        C = A.plusYears(B);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException e) {
+        C = null;
+        IsOk = bool.NO;
+        Error = e;
     }
 ").
 
