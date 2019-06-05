@@ -23,6 +23,7 @@
 :- include_module local_time.
 :- include_module offset_date_time.
 :- include_module offset_time.
+:- include_module period.
 :- include_module year.
 :- include_module year_month.
 :- include_module zoned_date_time.
