@@ -13,6 +13,8 @@
 :- module jtime.year_month.
 :- interface.
 
+:- import_module jtime.format.
+:- import_module jtime.format.date_time_formatter.
 :- import_module jtime.jtemporal.
 :- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
@@ -26,7 +28,12 @@
 
 %---------------------------------------------------------------------------%
 
+:- func at_day(year_month, int) = local_date.
+
 :- func at_end_of_month(year_month) = local_date.
+
+:- pred format(year_month::in, date_time_formatter::in,
+    string::out) is semidet.
 
 :- func get_year(year_month) = int.
 
@@ -56,6 +63,12 @@
 
 :- implementation.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
+:- import_module bool.
+:- import_module exception.
+
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_type("Java", year_month, "java.time.YearMonth") where
@@ -67,11 +80,54 @@
 
 %---------------------------------------------------------------------------%
 
+at_day(YM, D) = LD :-
+    do_at_day(YM, D, IsOk, LD, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_at_day(year_month::in, int::in, bool::out,
+    local_date::out, throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_at_day(YM::in, D::in, IsOk::out, LD::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        LD = YM.atDay(D);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException e) {
+        LD = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     at_end_of_month(YM::in) = (LD::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     LD = YM.atEndOfMonth();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    format(YM::in, Fmt::in, S::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        S = YM.format(Fmt);
+        SUCCESS_INDICATOR = true;
+    } catch (java.time.DateTimeException e) {
+        S = null;
+        SUCCESS_INDICATOR = false;
+    }
 ").
 
 %---------------------------------------------------------------------------%

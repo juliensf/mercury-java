@@ -15,6 +15,7 @@
 
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
+:- import_module jtime.local_date.
 :- import_module jtime.jtemporal.
 :- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
@@ -27,6 +28,8 @@
 :- instance temporal(year).
 :- instance temporal_accessor(year).
 
+:- func at_day(year, int) = local_date.
+
 :- pred is_after(year::in, year::in) is semidet.
 
 :- pred is_before(year::in, year::in) is semidet.
@@ -34,6 +37,8 @@
 :- pred is_leap(year::in) is semidet.
 
 :- pred format(year::in, date_time_formatter::in, string::out) is semidet.
+
+:- func length(year) = int.
 
 :- pred now(year::out, io::di, io::uo) is det.
 
@@ -76,6 +81,34 @@
 
 %---------------------------------------------------------------------------%
 
+at_day(Y, D) = LD :-
+    do_at_day(Y, D, IsOk, LD, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_at_day(year::in, int::in, bool::out, local_date::out,
+    throwable::out) is det.
+:- pragma foreign_proc("Java",
+    do_at_day(Y::in, D::in, IsOk::out, LD::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        LD = Y.atDay(D);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException e) {
+        LD = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     format(Y::in, Fmt::in, S::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -87,6 +120,15 @@
         S = null;
         SUCCESS_INDICATOR = false;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    length(Y::in) = (N::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    N = Y.length();
 ").
 
 %---------------------------------------------------------------------------%
