@@ -22,6 +22,7 @@
 
 :- import_module jnet.url_connection.
 
+:- import_module bool.
 :- import_module io.
 :- import_module maybe.
 
@@ -43,6 +44,29 @@
 %---------------------------------------------------------------------------%
 
 :- pred connect(T::in, io::di, io::uo) is det <= http_url_connection(T).
+
+:- pred get_allow_user_interaction(T::in, bool::out, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred get_connect_timeout(T::in, int::out, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred get_content_encoding(T::in, maybe(string)::out, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred get_content_length(T::in, maybe(int64)::out, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred get_content_type(T::in, maybe(string)::out, io::di, io::uo)
+    is det <= url_connection(T).
+
+:- pred get_date(T::in, maybe(int64)::out, io::di, io::uo)
+    is det <= url_connection(T).
+
+:- pred get_expiration(T::in, maybe(int64)::out, io::di, io::uo)
+    is det <= url_connection(T).
+
+
 
 :- pred get_request_method(T::in, string::out, io::di, io::uo) is det
     <= http_url_connection(T).
@@ -94,6 +118,27 @@
 
 connect(UC, !IO) :-
     url_connection.connect(UC, !IO).
+
+get_allow_user_interaction(UC, AUI, !IO) :-
+    url_connection.get_allow_user_interaction(UC, AUI, !IO).
+
+get_connect_timeout(UC, Timeout, !IO) :-
+    url_connection.get_connect_timeout(UC, Timeout, !IO).
+
+get_content_encoding(UC, CE, !IO) :-
+    url_connection.get_content_encoding(UC, CE, !IO).
+
+get_content_length(UC, CL, !IO) :-
+    url_connection.get_content_length(UC, CL, !IO).
+
+get_content_type(UC, CT, !IO) :-
+    url_connection.get_content_type(UC, CT, !IO).
+
+get_date(UC, D, !IO) :-
+    url_connection.get_date(UC, D, !IO).
+
+get_expiration(UC, E, !IO) :-
+    url_connection.get_expiration(UC, E, !IO).
 
 set_connect_timeout(UC, Timeout, !IO) :-
     url_connection.set_connect_timeout(UC, Timeout, !IO).
