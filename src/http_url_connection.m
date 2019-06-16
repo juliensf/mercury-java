@@ -43,6 +43,9 @@
 
 %---------------------------------------------------------------------------%
 
+:- pred add_request_property(T::in, string::in, string::in,
+    io::di, io::uo) is det <= http_url_connection(T).
+
 :- pred connect(T::in, io::di, io::uo) is det <= http_url_connection(T).
 
 :- pred get_allow_user_interaction(T::in, bool::out, io::di, io::uo)
@@ -66,10 +69,11 @@
 :- pred get_expiration(T::in, maybe(int64)::out, io::di, io::uo)
     is det <= url_connection(T).
 
-
-
 :- pred get_request_method(T::in, string::out, io::di, io::uo) is det
     <= http_url_connection(T).
+
+:- pred get_if_modified_since(T::in, int64::out, io::di, io::uo)
+    is det <= http_url_connection(T).
 
 :- pred get_input_stream(T::in, maybe_error(jinput_stream, throwable)::out,
     io::di, io::uo) is det <= http_url_connection(T).
@@ -116,6 +120,9 @@
 
 %---------------------------------------------------------------------------%
 
+add_request_property(UC, K, V, !IO) :-
+    url_connection.add_request_property(UC, K, V, !IO).
+
 connect(UC, !IO) :-
     url_connection.connect(UC, !IO).
 
@@ -142,6 +149,9 @@ get_expiration(UC, E, !IO) :-
 
 set_connect_timeout(UC, Timeout, !IO) :-
     url_connection.set_connect_timeout(UC, Timeout, !IO).
+
+get_if_modified_since(UC, IMS, !IO) :-
+    url_connection.get_if_modified_since(UC, IMS, !IO).
 
 get_input_stream(UC, Result, !IO) :-
     url_connection.get_input_stream(UC, Result, !IO).

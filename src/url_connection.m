@@ -32,6 +32,9 @@
 
 %---------------------------------------------------------------------------%
 
+:- pred add_request_property(T::in, string::in, string::in,
+    io::di, io::uo) is det <= url_connection(T).
+
 :- pred connect(T::in, io::di, io::uo) is det <= url_connection(T).
 
 :- pred get_allow_user_interaction(T::in, bool::out, io::di, io::uo)
@@ -55,6 +58,12 @@
 :- pred get_expiration(T::in, maybe(int64)::out, io::di, io::uo)
     is det <= url_connection(T).
 
+:- pred get_header_field(T::in, string::in, maybe(string)::out,
+    io::di, io::uo) is det <= url_connection(T).
+
+:- pred get_if_modified_since(T::in, int64::out, io::di, io::uo)
+    is det <= url_connection(T).
+
 :- pred get_input_stream(T::in, maybe_error(jinput_stream, throwable)::out,
     io::di, io::uo) is det <= url_connection(T).
 
@@ -72,8 +81,6 @@
 
     %pred set_read_timeout(T::in, int::in, io::di, io::uo) is det,
     %pred get_read_timeout(T::in, int::out, io::di, io::uo) is det,
-    %pred get_header_field(T::in, string::in, maybe(string)::out,
-    %    io::di, io::uo) is det,
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -91,6 +98,34 @@
 %---------------------------------------------------------------------------%
 
 :- instance url_connection(url_connection) where [].
+
+%---------------------------------------------------------------------------%
+
+add_request_property(UC, K, V, !IO) :-
+    do_add_request_property(UC, K, V, IsOk, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_add_request_property(T::in, string::in, string::in, bool::out,
+    throwable::out, io::di, io::uo) is det <= url_connection(T).
+:- pragma foreign_proc("Java",
+    do_add_request_property(UC::in, K::in, V::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.net.URLConnection) UC).addRequestProperty(K, V);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.lang.IllegalStateException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 
@@ -242,6 +277,38 @@ get_expiration(UC, MaybeExpiration, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     E = ((java.net.URLConnection) UC).getExpiration();
+").
+
+%---------------------------------------------------------------------------%
+
+get_header_field(UC, Name, MaybeValue, !IO) :-
+    do_get_header_field(UC, Name, HaveValue, Value, !IO),
+    (
+        HaveValue = yes,
+        MaybeValue = yes(Value)
+    ;
+        HaveValue = no,
+        MaybeValue = no
+    ).
+
+:- pred do_get_header_field(T::in, string::in, bool::out, string::out,
+    io::di, io::uo) is det <= url_connection(T).
+:- pragma foreign_proc("Java",
+    do_get_header_field(UC::in, Name::in, HaveValue::out, Value::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    Value = ((java.net.URLConnection) UC).getHeaderField(Name);
+    HaveValue = (Value != null ? bool.YES : bool.NO);
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    get_if_modified_since(UC::in, IMS::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    IMS = ((java.net.URLConnection) UC).getIfModifiedSince();
 ").
 
 %---------------------------------------------------------------------------%
