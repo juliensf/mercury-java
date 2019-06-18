@@ -69,8 +69,8 @@
 :- pred get_expiration(T::in, maybe(int64)::out, io::di, io::uo)
     is det <= url_connection(T).
 
-:- pred get_request_method(T::in, string::out, io::di, io::uo) is det
-    <= http_url_connection(T).
+:- pred get_request_method(T::in, string::out, io::di, io::uo)
+    is det <= http_url_connection(T).
 
 :- pred get_if_modified_since(T::in, int64::out, io::di, io::uo)
     is det <= http_url_connection(T).
@@ -81,8 +81,14 @@
 :- pred get_output_stream(T::in, maybe_error(joutput_stream, throwable)::out,
     io::di, io::uo) is det <= http_url_connection(T).
 
-:- pred set_connect_timeout(T::in, int::in, io::di, io::uo) is det
-    <= http_url_connection(T).
+:- pred get_read_timeout(T::in, int::out, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred set_connect_timeout(T::in, int::in, io::di, io::uo)
+    is det <= http_url_connection(T).
+
+:- pred set_read_timeout(T::in, int::in, io::di, io::uo)
+    is det <= http_url_connection(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -147,9 +153,6 @@ get_date(UC, D, !IO) :-
 get_expiration(UC, E, !IO) :-
     url_connection.get_expiration(UC, E, !IO).
 
-set_connect_timeout(UC, Timeout, !IO) :-
-    url_connection.set_connect_timeout(UC, Timeout, !IO).
-
 get_if_modified_since(UC, IMS, !IO) :-
     url_connection.get_if_modified_since(UC, IMS, !IO).
 
@@ -158,6 +161,15 @@ get_input_stream(UC, Result, !IO) :-
 
 get_output_stream(UC, Result, !IO) :-
     url_connection.get_output_stream(UC, Result, !IO).
+
+get_read_timeout(UC, Timeout, !IO) :-
+    url_connection.get_read_timeout(UC, Timeout, !IO).
+
+set_connect_timeout(UC, Timeout, !IO) :-
+    url_connection.set_connect_timeout(UC, Timeout, !IO).
+
+set_read_timeout(UC, Timeout, !IO) :-
+    url_connection.set_read_timeout(UC, Timeout, !IO).
 
 %---------------------------------------------------------------------------%
 

@@ -73,14 +73,17 @@
 :- pred get_output_stream(T::in, maybe_error(joutput_stream, throwable)::out,
     io::di, io::uo) is det <= url_connection(T).
 
+:- pred get_read_timeout(T::in, int::out, io::di, io::uo)
+    is det <= url_connection(T).
+
 :- pred get_url(T::in, url::out, io::di, io::uo)
     is det <= url_connection(T).
 
-:- pred set_connect_timeout(T::in, int::in, io::di, io::uo) is det
-    <= url_connection(T).
+:- pred set_connect_timeout(T::in, int::in, io::di, io::uo)
+    is det <= url_connection(T).
 
-    %pred set_read_timeout(T::in, int::in, io::di, io::uo) is det,
-    %pred get_read_timeout(T::in, int::out, io::di, io::uo) is det,
+:- pred set_read_timeout(T::in, int::in, io::di, io::uo)
+    is det <= url_connection(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -393,6 +396,15 @@ get_output_stream(UC, Result, !IO) :-
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
+    get_read_timeout(UC::in, Timeout::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    Timeout = ((java.net.URLConnection) UC).getReadTimeout();
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
     get_url(UC::in, U::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
@@ -416,6 +428,25 @@ set_connect_timeout(UC, Timeout, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     ((java.net.URLConnection) UC).setConnectTimeout(T);
+").
+
+%---------------------------------------------------------------------------%
+
+set_read_timeout(UC, Timeout, !IO) :-
+    ( if Timeout < 0 then
+        unexpected("jnet.url_connection.set_read_timeout",
+            "timeout value is negative")
+    else
+        do_set_read_timeout(UC, Timeout, !IO)
+    ).
+
+:- pred do_set_read_timeout(T::in, int::in,
+    io::di, io::uo) is det <= url_connection(T).
+:- pragma foreign_proc("Java",
+    do_set_read_timeout(UC::in, T::in, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    ((java.net.URLConnection) UC).setReadTimeout(T);
 ").
 
 %---------------------------------------------------------------------------%
