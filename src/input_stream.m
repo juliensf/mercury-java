@@ -13,7 +13,11 @@
 :- module jio.input_stream.
 :- interface.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+
 :- import_module io.
+:- import_module stream.
 
 %---------------------------------------------------------------------------%
 
@@ -28,6 +32,10 @@
 
 :- instance input_stream(jinput_stream).
 
+:- instance stream(jinput_stream, io).
+:- instance input(jinput_stream, io).
+:- instance reader(jinput_stream, uint8, io, throwable).
+
 %---------------------------------------------------------------------------%
 
 :- pred available(T::in, io.result(int)::out, io::di, io::uo)
@@ -39,8 +47,8 @@
 
 :- pred mark_supported(T::in, io::ui) is semidet <= input_stream(T).
 
-:- pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo)
-    is det <= input_stream(T).
+:- pred read_byte(T::in, stream.result(uint8, throwable)::out,
+    io::di, io::uo) is det <= input_stream(T).
 
 % XXX TODO read multiple bytes.
 :- pred reset(T::in, io::di, io::uo) is det <= input_stream(T).
@@ -66,6 +74,17 @@
 %---------------------------------------------------------------------------%
 
 :- instance input_stream(jinput_stream) where [].
+
+:- instance stream(jinput_stream, io) where [
+    ( name(_, "<<java.io.InputStream>>", !IO) )
+].
+
+:- instance input(jinput_stream, io) where [].
+
+:- instance reader(jinput_stream, uint8, io, throwable) where [
+    pred(get/4) is read_byte
+].
+
 %---------------------------------------------------------------------------%
 
 :- pragma no_determinism_warning(available/4).

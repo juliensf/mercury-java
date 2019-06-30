@@ -15,8 +15,11 @@
 
 :- import_module jio.filter_input_stream.
 :- import_module jio.input_stream.
+:- import_module jlang.
+:- import_module jlang.throwable.
 
 :- import_module io.
+:- import_module stream.
 
 %---------------------------------------------------------------------------%
 
@@ -27,6 +30,10 @@
 :- instance input_stream(buffered_input_stream).
 :- instance filter_input_stream(buffered_input_stream).
 :- instance buffered_input_stream(buffered_input_stream).
+
+:- instance stream(buffered_input_stream, io).
+:- instance input(buffered_input_stream, io).
+:- instance reader(buffered_input_stream, uint8, io, throwable).
 
 %---------------------------------------------------------------------------%
 
@@ -48,7 +55,7 @@
 
 :- pred mark_supported(T::in, io::ui) is semidet <= buffered_input_stream(T).
 
-:- pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo)
+:- pred read_byte(T::in, stream.result(uint8, throwable)::out, io::di, io::uo)
     is det <= buffered_input_stream(T).
 
 % XXX TODO read multiple bytes.
@@ -74,6 +81,15 @@
 :- instance filter_input_stream(buffered_input_stream) where [].
 :- instance buffered_input_stream(buffered_input_stream) where [].
 
+:- instance stream(buffered_input_stream, io) where [
+    ( name(_, "<<java.io.BufferedInputStream>>", !IO) )
+].
+
+:- instance input(buffered_input_stream, io) where [].
+
+:- instance reader(buffered_input_stream, uint8, io, throwable) where [
+    pred(get/4) is input_stream.read_byte
+].
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",

@@ -16,8 +16,11 @@
 %:- import_module jio.file.
 :- import_module jio.file_descriptor.
 :- import_module jio.input_stream.
+:- import_module jlang.
+:- import_module jlang.throwable.
 
 :- import_module io.
+:- import_module stream.
 
 %---------------------------------------------------------------------------%
 
@@ -36,8 +39,8 @@
 
 :- pred mark_supported(file_input_stream::in, io::ui) is semidet.
 
-:- pred read_byte(file_input_stream::in, io.result(uint8)::out, io::di, io::uo)
-    is det.
+:- pred read_byte(file_input_stream::in, stream.result(uint8, throwable)::out,
+    io::di, io::uo) is det.
 
 % XXX TODO read multiple bytes.
 

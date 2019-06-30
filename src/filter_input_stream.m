@@ -14,8 +14,11 @@
 :- interface.
 
 :- import_module jio.input_stream.
+:- import_module jlang.
+:- import_module jlang.throwable.
 
 :- import_module io.
+:- import_module stream.
 
 %---------------------------------------------------------------------------%
 
@@ -38,8 +41,8 @@
 
 :- pred mark_supported(T::in, io::ui) is semidet <= filter_input_stream(T).
 
-:- pred read_byte(T::in, io.result(uint8)::out, io::di, io::uo)
-    is det <= filter_input_stream(T).
+:- pred read_byte(T::in, stream.result(uint8, throwable)::out,
+    io::di, io::uo) is det <= filter_input_stream(T).
 
 % XXX TODO read multiple bytes.
 :- pred reset(T::in, io::di, io::uo) is det <= filter_input_stream(T).
