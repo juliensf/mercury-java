@@ -28,6 +28,10 @@
 
 :- instance input_stream(file_input_stream).
 
+:- instance stream(file_input_stream, io).
+:- instance input(file_input_stream, io).
+:- instance reader(file_input_stream, uint8, io, throwable).
+
 %---------------------------------------------------------------------------%
 
 :- pred available(file_input_stream::in, io.result(int)::out,
@@ -74,6 +78,16 @@
 %---------------------------------------------------------------------------%
 
 :- instance input_stream(file_input_stream) where [].
+
+:- instance stream(file_input_stream, io) where [
+    ( name(_, "<<java.io.FileInputStream>>", !IO) )
+].
+
+:- instance input(file_input_stream, io) where [].
+
+:- instance reader(file_input_stream, uint8, io, throwable) where [
+    pred(get/4) is file_input_stream.read_byte
+].
 
 %---------------------------------------------------------------------------%
 

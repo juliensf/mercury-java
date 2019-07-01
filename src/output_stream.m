@@ -31,7 +31,7 @@
 
 :- instance stream(joutput_stream, io).
 :- instance output(joutput_stream, io).
-:- instance writer(joutput_stream, uint, io).
+:- instance writer(joutput_stream, uint8, io).
 
 %---------------------------------------------------------------------------%
 
@@ -39,7 +39,7 @@
 
 :- pred flush(T::in, io::di, io::uo) is det <= output_stream(T).
 
-:- pred write(T::in, uint::in, io::di, io::uo) is det <= output_stream(T).
+:- pred write_byte(T::in, uint8::in, io::di, io::uo) is det <= output_stream(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -57,6 +57,18 @@
 :- pragma foreign_type("Java", joutput_stream, "java.io.OutputStream").
 
 :- instance output_stream(joutput_stream) where [].
+
+:- instance stream(joutput_stream, io) where [
+    pred(name/4) is output_stream.name
+].
+
+:- instance output(joutput_stream, io) where [
+    pred(flush/3) is output_stream.flush
+].
+
+:- instance writer(joutput_stream, uint8, io) where [
+    pred(put/4) is output_stream.write_byte
+].
 
 %---------------------------------------------------------------------------%
 
@@ -114,7 +126,7 @@ flush(Stream, !IO) :-
 
 %---------------------------------------------------------------------------%
 
-write(Stream, Byte, !IO) :-
+write_byte(Stream, Byte, !IO) :-
     do_write_byte(Stream, Byte, IsOk, Error, !IO),
     (
         IsOk = yes
@@ -123,7 +135,7 @@ write(Stream, Byte, !IO) :-
         throw(java_exception(Error))
     ).
 
-:- pred do_write_byte(T::in, uint::in, bool::out, throwable::out,
+:- pred do_write_byte(T::in, uint8::in, bool::out, throwable::out,
     io::di, io::uo) is det <= output_stream(T).
 :- pragma foreign_proc("Java",
     do_write_byte(Stream::in, Byte::in, IsOk::out, Error::out,
@@ -131,7 +143,7 @@ write(Stream, Byte, !IO) :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        ((java.io.OutputStream) Stream).write(Byte);
+        ((java.io.OutputStream) Stream).write(Byte & 0xff);
         IsOk = bool.YES;
         Error = null;
     } catch (java.io.IOException e) {
@@ -139,24 +151,6 @@ write(Stream, Byte, !IO) :-
         Error = e;
     }
 ").
-
-%---------------------------------------------------------------------------%
-
-:- instance stream(joutput_stream, io) where [
-    pred(name/4) is output_stream.name
-].
-
-:- instance output(joutput_stream, io) where [
-    ( flush(Stream, !IO) :-
-        output_stream.flush(Stream, !IO)
-    )
-].
-
-:- instance writer(joutput_stream, uint, io) where [
-    ( put(Stream, Byte, !IO) :-
-        output_stream.write(Stream, Byte, !IO)
-    )
-].
 
 %---------------------------------------------------------------------------%
 
