@@ -13,6 +13,7 @@
 :- module jio.file_output_stream.
 :- interface.
 
+:- import_module jio.file_descriptor.
 :- import_module jio.output_stream.
 
 :- import_module io.
@@ -35,6 +36,9 @@
 :- pred close(T::in, io::di, io::uo) is det <= file_output_stream(T).
 
 :- pred flush(T::in, io::di, io::uo) is det <= file_output_stream(T).
+
+:- pred get_fd(T::in, file_descriptor::out,
+    io::di, io::uo) is det <= file_output_stream(T).
 
 :- pred write_byte(T::in, uint8::in, io::di, io::uo)
     is det <= file_output_stream(T).
@@ -80,6 +84,34 @@ flush(Stream, !IO) :-
 
 write_byte(Stream, Byte, !IO) :-
     output_stream.write_byte(Stream, Byte, !IO).
+
+%---------------------------------------------------------------------------%
+
+get_fd(Stream, FD, !IO) :-
+    do_get_fd(Stream, IsOk, FD, Error, !IO),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_get_fd(T::in, bool::out, file_descriptor::out,
+    throwable::out, io::di, io::uo) is det <= file_output_stream(T).
+:- pragma foreign_proc("Java",
+    do_get_fd(Stream::in, IsOk::out, FD::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        FD = ((java.io.FileOutputStream) Stream).getFD();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        FD = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
 
 %---------------------------------------------------------------------------%
 

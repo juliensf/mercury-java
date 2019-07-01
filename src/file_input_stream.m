@@ -24,8 +24,10 @@
 
 %---------------------------------------------------------------------------%
 
+:- typeclass file_input_stream(T) where input_stream(T) where [].
 :- type file_input_stream.
 
+:- instance file_input_stream(file_input_stream).
 :- instance input_stream(file_input_stream).
 
 :- instance stream(file_input_stream, io).
@@ -34,29 +36,30 @@
 
 %---------------------------------------------------------------------------%
 
-:- pred available(file_input_stream::in, io.result(int)::out,
-    io::di, io::uo) is det.
+:- pred available(T::in, io.result(int)::out,
+    io::di, io::uo) is det <= file_input_stream(T).
 
-:- pred close(file_input_stream::in, io::di, io::uo) is det.
+:- pred close(T::in, io::di, io::uo) is det <= file_input_stream(T).
 
-:- pred mark(file_input_stream::in, int::in, io::di, io::uo) is det.
+:- pred mark(T::in, int::in, io::di, io::uo) is det <= file_input_stream(T).
 
-:- pred mark_supported(file_input_stream::in, io::ui) is semidet.
+:- pred mark_supported(T::in, io::ui) is semidet <= file_input_stream(T).
 
-:- pred read_byte(file_input_stream::in, stream.result(uint8, throwable)::out,
-    io::di, io::uo) is det.
+:- pred read_byte(T::in, stream.result(uint8, throwable)::out,
+    io::di, io::uo) is det <= file_input_stream(T).
 
 % XXX TODO read multiple bytes.
 
-:- pred reset(file_input_stream::in, io::di, io::uo) is det.
+:- pred reset(T::in, io::di, io::uo) is det <= file_input_stream(T).
 
-:- pred skip(file_input_stream::in, int64::in, io::di, io::uo) is det.
+:- pred skip(T::in, int64::in, io::di, io::uo)
+    is det <= file_input_stream(T).
 
-% :- pred get_channel(file_input_stream::in, file_channel::out,
-%    io::di, io::uo) is det.
+% :- pred get_channel(T::in, file_channel::out,
+%    io::di, io::uo) is det <= file_input_stream(T).
 
-:- pred get_fd(file_input_stream::in, file_descriptor::out,
-    io::di, io::uo) is det.
+:- pred get_fd(T::in, file_descriptor::out,
+    io::di, io::uo) is det <= file_input_stream(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -78,6 +81,7 @@
 %---------------------------------------------------------------------------%
 
 :- instance input_stream(file_input_stream) where [].
+:- instance file_input_stream(file_input_stream) where [].
 
 :- instance stream(file_input_stream, io) where [
     ( name(_, "<<java.io.FileInputStream>>", !IO) )
@@ -123,14 +127,14 @@ get_fd(Stream, FD, !IO) :-
         throw(java_exception(Error))
     ).
 
-:- pred do_get_fd(file_input_stream::in, bool::out, file_descriptor::out,
-    throwable::out, io::di, io::uo) is det.
+:- pred do_get_fd(T::in, bool::out, file_descriptor::out,
+    throwable::out, io::di, io::uo) is det <= file_input_stream(T).
 :- pragma foreign_proc("Java",
     do_get_fd(Stream::in, IsOk::out, FD::out, Error::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     try {
-        FD = Stream.getFD();
+        FD = ((java.io.FileInputStream) Stream).getFD();
         IsOk = bool.YES;
         Error = null;
     } catch (java.io.IOException e) {
