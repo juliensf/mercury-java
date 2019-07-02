@@ -24,7 +24,7 @@
 
 %---------------------------------------------------------------------------%
 
-:- typeclass file_input_stream(T) where input_stream(T) where [].
+:- typeclass file_input_stream(T) <= input_stream(T) where [].
 :- type file_input_stream.
 
 :- instance file_input_stream(file_input_stream).
