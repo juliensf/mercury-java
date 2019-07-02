@@ -6,17 +6,26 @@
 %
 % Author: Julien Fischer <juliensf@gmail.com>
 %
-% A Mercury wrapper for the java.nio package.
+% A Mercury wrapper for the java.nio.file.Path interface.
 %
 %-----------------------------------------------------------------------------%
 
-:- module jnio.
+:- module jnio.jfile.path.
 :- interface.
 
-:- include_module channels.
-:- include_module jcharset.  % Prefix with 'j' to avoid clash with Charset.
-:- include_module jfile.     % Prefix with 'j' to avoid clash with File.
+:- typeclass path(T) where [].
+:- type path.
+:- instance path(path).
 
 %-----------------------------------------------------------------------------%
-:- end_module jnio.
+%-----------------------------------------------------------------------------%
+
+:- implementation.
+
+:- pragma foreign_type("Java", path, "java.nio.file.Path").
+
+:- instance path(path) where [].
+
+%-----------------------------------------------------------------------------%
+:- end_module jnio.jfile.path.
 %-----------------------------------------------------------------------------%
