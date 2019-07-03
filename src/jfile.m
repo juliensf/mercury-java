@@ -12,8 +12,11 @@
 % name clash with the wrapper for the File class.
 %
 %-----------------------------------------------------------------------------%
+
 :- module jnio.jfile.
 :- interface.
+
+%-----------------------------------------------------------------------------%
 
 :- include_module copy_option.
 :- include_module files.
@@ -21,3 +24,8 @@
 :- include_module open_option.
 :- include_module path.
 :- include_module standard_copy_option.
+:- include_module standard_open_option.
+
+%-----------------------------------------------------------------------------%
+:- end_module jnio.jfile.
+%-----------------------------------------------------------------------------%

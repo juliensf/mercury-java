@@ -14,17 +14,20 @@
 :- interface.
 
 :- typeclass open_option(T) where [
-    func to_open_option(T) = open_option
+    func to_open_option(T) = jopen_option
 ].
 
-:- type open_option.
+:- type open_option
+    --->    some [O] open_option(O) => open_option(O).
+
+:- type jopen_option.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
 :- implementation.
 
-:- pragma foreign_type("Java", open_option, "java.nio.file.OpenOption").
+:- pragma foreign_type("Java", jopen_option, "java.nio.file.OpenOption").
 
 %---------------------------------------------------------------------------%
 :- end_module jnio.jfile.open_option.
