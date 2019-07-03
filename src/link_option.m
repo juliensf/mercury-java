@@ -30,7 +30,7 @@
 :- implementation.
 
 :- instance copy_option(link_option) where [
-    func(to_copy_option/1) is lo_to_co
+    func(to_jcopy_option/1) is lo_to_co
 ].
 
 :- func lo_to_co(link_option) = jcopy_option.
@@ -48,7 +48,7 @@ lo_to_co(nofollow_links) = jnofollow_links_co.
 %---------------------------------------------------------------------------%
 
 :- instance open_option(link_option) where [
-    func(to_open_option/1) is lo_to_oo
+    func(to_jopen_option/1) is lo_to_oo
 ].
 
 :- func lo_to_oo(link_option) = jopen_option.

@@ -14,7 +14,7 @@
 :- interface.
 
 :- typeclass copy_option(T) where [
-    func to_copy_option(T) = jcopy_option
+    func to_jcopy_option(T) = jcopy_option
 ].
 
 :- type copy_option

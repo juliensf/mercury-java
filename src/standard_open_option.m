@@ -37,7 +37,7 @@
 :- implementation.
 
 :- instance open_option(standard_open_option) where [
-    func(to_open_option/1) is soo_to_oo
+    func(to_jopen_option/1) is soo_to_oo
 ].
 
 :- func soo_to_oo(standard_open_option) = jopen_option.

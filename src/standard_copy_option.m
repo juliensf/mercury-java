@@ -30,7 +30,7 @@
 :- implementation.
 
 :- instance copy_option(standard_copy_option) where [
-    func(to_copy_option/1) is sco_to_co
+    func(to_jcopy_option/1) is sco_to_co
 ].
 
 :- func sco_to_co(standard_copy_option) = jcopy_option.

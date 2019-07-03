@@ -14,7 +14,7 @@
 :- interface.
 
 :- typeclass open_option(T) where [
-    func to_open_option(T) = jopen_option
+    func to_jopen_option(T) = jopen_option
 ].
 
 :- type open_option

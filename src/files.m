@@ -15,13 +15,16 @@
 
 :- import_module jio.
 :- import_module jio.buffered_reader.
+:- import_module jio.buffered_writer.
 :- import_module jlang.
 :- import_module jlang.throwable.
 :- import_module jnio.jcharset.
 :- import_module jnio.jcharset.charset.
+:- import_module jnio.jfile.open_option.
 :- import_module jnio.jfile.path.
 
 :- import_module io.
+:- import_module list.
 :- import_module maybe.
 
 %---------------------------------------------------------------------------%
@@ -33,6 +36,14 @@
 :- pred new_buffered_reader(P::in, C::in,
     maybe_error(buffered_reader, throwable)::out,
     io::di, io::uo) is det <= (path(P), charset(C)).
+
+:- pred new_buffered_writer(P::in, C::in, list(open_option)::in,
+    maybe_error(buffered_writer, throwable)::out,
+    io::di, io::uo) is det <= (path(P), charset(C)).
+
+:- pred new_buffered_writer(P::in, list(open_option)::in,
+    maybe_error(buffered_writer, throwable)::out,
+    io::di, io::uo) is det <= path(P).
 
 :- pred size(P::in, maybe_error(int64, throwable)::out,
     io::di, io::uo) is det <= path(P).
@@ -134,6 +145,99 @@ size(Path, Result, !IO) :-
         Error = e;
     }
 ").
+
+%---------------------------------------------------------------------------%
+
+new_buffered_writer(Path, Charset, Options, Result, !IO) :-
+    JOptions = list.map(open_option_to_jopen_option, Options),
+    list.length(Options, NumOptions),
+    do_new_buffered_writer(Path, Charset ,NumOptions, JOptions, IsOk, Writer,
+        Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Writer)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_new_buffered_writer(P::in, C::in, int::in, list(jopen_option)::in,
+    bool::out, buffered_writer::out, throwable::out, io::di, io::uo)
+    is det <= (path(P), charset(C)).
+:- pragma foreign_proc("Java",
+    do_new_buffered_writer(P::in, C::in, NumOptions::in, Options::in,
+        IsOk::out, BW::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    java.nio.file.OpenOption opts[] = new java.nio.file.OpenOption[NumOptions];
+    for (int i = 0; !list.is_empty(Options); i++) {
+        opts[i] = list.det_head(Options);
+        Options = list.det_tail(Options);
+    }
+
+    try {
+        BW = java.nio.file.Files.newBufferedWriter(
+            (java.nio.file.Path) P,
+            (java.nio.charset.Charset) C, opts);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException |
+            java.lang.UnsupportedOperationException |
+            java.lang.SecurityException e) {
+        BW = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+new_buffered_writer(Path, Options, Result, !IO) :-
+    JOptions = list.map(open_option_to_jopen_option, Options),
+    list.length(Options, NumOptions),
+    do_new_buffered_writer(Path, NumOptions, JOptions, IsOk, Writer, Error,
+        !IO),
+    (
+        IsOk = yes,
+        Result = ok(Writer)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_new_buffered_writer(P::in, int::in, list(jopen_option)::in,
+    bool::out, buffered_writer::out, throwable::out, io::di, io::uo)
+    is det <= path(P).
+:- pragma foreign_proc("Java",
+    do_new_buffered_writer(P::in, NumOptions::in, Options::in,
+        IsOk::out, BW::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    java.nio.file.OpenOption opts[] = new java.nio.file.OpenOption[NumOptions];
+    for (int i = 0; !list.is_empty(Options); i++) {
+        opts[i] = list.det_head(Options);
+        Options = list.det_tail(Options);
+    }
+
+    try {
+        BW = java.nio.file.Files.newBufferedWriter(
+            (java.nio.file.Path) P, opts);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException |
+            java.lang.UnsupportedOperationException |
+            java.lang.SecurityException e) {
+        BW = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+:- func open_option_to_jopen_option(open_option) = jopen_option.
+
+open_option_to_jopen_option(open_option(Option)) = to_jopen_option(Option).
 
 %---------------------------------------------------------------------------%
 :- end_module jnio.jfile.files.
