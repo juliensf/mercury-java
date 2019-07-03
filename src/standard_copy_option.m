@@ -33,13 +33,13 @@
     func(to_copy_option/1) is sco_to_co
 ].
 
-:- func sco_to_co(standard_copy_option) = copy_option.
+:- func sco_to_co(standard_copy_option) = jcopy_option.
 
 sco_to_co(atomic_move) = jatomic_move.
 sco_to_co(copy_attributes) = jcopy_attributes.
 sco_to_co(replace_existing) = jreplace_existing.
 
-:- func jatomic_move = copy_option.
+:- func jatomic_move = jcopy_option.
 :- pragma foreign_proc("Java",
     jatomic_move = (CO::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -47,7 +47,7 @@ sco_to_co(replace_existing) = jreplace_existing.
     CO = java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 ").
 
-:- func jcopy_attributes = copy_option.
+:- func jcopy_attributes = jcopy_option.
 :- pragma foreign_proc("Java",
     jcopy_attributes = (CO::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -55,7 +55,7 @@ sco_to_co(replace_existing) = jreplace_existing.
     CO = java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 ").
 
-:- func jreplace_existing = copy_option.
+:- func jreplace_existing = jcopy_option.
 :- pragma foreign_proc("Java",
     jreplace_existing = (CO::out),
     [will_not_call_mercury, promise_pure, thread_safe],

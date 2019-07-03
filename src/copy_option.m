@@ -14,17 +14,20 @@
 :- interface.
 
 :- typeclass copy_option(T) where [
-    func to_copy_option(T) = copy_option
+    func to_copy_option(T) = jcopy_option
 ].
 
-:- type copy_option.
+:- type copy_option
+    --->    some [O] copy_option(O) => copy_option(O).
+
+:- type jcopy_option.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 
 :- implementation.
 
-:- pragma foreign_type("Java", copy_option, "java.nio.file.CopyOption").
+:- pragma foreign_type("Java", jcopy_option, "java.nio.file.CopyOption").
 
 %---------------------------------------------------------------------------%
 :- end_module jnio.jfile.copy_option.

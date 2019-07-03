@@ -33,11 +33,11 @@
     func(to_copy_option/1) is lo_to_co
 ].
 
-:- func lo_to_co(link_option) = copy_option.
+:- func lo_to_co(link_option) = jcopy_option.
 
 lo_to_co(nofollow_links) = jnofollow_links_co.
 
-:- func jnofollow_links_co = copy_option.
+:- func jnofollow_links_co = jcopy_option.
 :- pragma foreign_proc("Java",
     jnofollow_links_co = (CO::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -51,11 +51,11 @@ lo_to_co(nofollow_links) = jnofollow_links_co.
     func(to_open_option/1) is lo_to_oo
 ].
 
-:- func lo_to_oo(link_option) = open_option.
+:- func lo_to_oo(link_option) = jopen_option.
 
 lo_to_oo(nofollow_links) = jnofollow_links_oo.
 
-:- func jnofollow_links_oo = open_option.
+:- func jnofollow_links_oo = jopen_option.
 :- pragma foreign_proc("Java",
     jnofollow_links_oo = (OO::out),
     [will_not_call_mercury, promise_pure, thread_safe],
