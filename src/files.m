@@ -22,19 +22,19 @@
 :- import_module jnio.jfile.path.
 
 :- import_module io.
-:- import_module stream.
+:- import_module maybe.
 
 %---------------------------------------------------------------------------%
 
 :- pred new_buffered_reader(P::in,
-    stream.result(buffered_reader, throwable)::out,
+    maybe_error(buffered_reader, throwable)::out,
     io::di, io::uo) is det <= path(P).
 
 :- pred new_buffered_reader(P::in, C::in,
-    stream.result(buffered_reader, throwable)::out,
+    maybe_error(buffered_reader, throwable)::out,
     io::di, io::uo) is det <= (path(P), charset(C)).
 
-:- pred size(P::in, stream.result(int64, throwable)::out,
+:- pred size(P::in, maybe_error(int64, throwable)::out,
     io::di, io::uo) is det <= path(P).
 
 %---------------------------------------------------------------------------%
