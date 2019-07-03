@@ -16,6 +16,8 @@
 :- import_module jio.
 :- import_module jio.buffered_reader.
 :- import_module jio.buffered_writer.
+:- import_module jio.input_stream.
+:- import_module jio.output_stream.
 :- import_module jlang.
 :- import_module jlang.throwable.
 :- import_module jnio.jcharset.
@@ -43,6 +45,14 @@
 
 :- pred new_buffered_writer(P::in, list(open_option)::in,
     maybe_error(buffered_writer, throwable)::out,
+    io::di, io::uo) is det <= path(P).
+
+:- pred new_input_stream(P::in, list(open_option)::in,
+    maybe_error(jinput_stream, throwable)::out,
+    io::di, io::uo) is det <= path(P).
+
+:- pred new_output_stream(P::in, list(open_option)::in,
+    maybe_error(joutput_stream, throwable)::out,
     io::di, io::uo) is det <= path(P).
 
 :- pred size(P::in, maybe_error(int64, throwable)::out,
@@ -228,6 +238,94 @@ new_buffered_writer(Path, Options, Result, !IO) :-
             java.lang.UnsupportedOperationException |
             java.lang.SecurityException e) {
         BW = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+new_input_stream(Path, Options, Result, !IO) :-
+    JOptions = list.map(open_option_to_jopen_option, Options),
+    list.length(Options, NumOptions),
+    do_new_input_stream(Path, NumOptions, JOptions, IsOk, Stream,
+        Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Stream)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_new_input_stream(P::in, int::in, list(jopen_option)::in,
+    bool::out, jinput_stream::out, throwable::out,
+    io::di, io::uo) is det <= path(P).
+:- pragma foreign_proc("Java",
+    do_new_input_stream(P::in, NumOptions::in, Options::in, IsOk::out,
+        IS::out,  Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    java.nio.file.OpenOption opts[] = new java.nio.file.OpenOption[NumOptions];
+    for (int i = 0; !list.is_empty(Options); i++) {
+        opts[i] = list.det_head(Options);
+        Options = list.det_tail(Options);
+    }
+
+    try {
+        IS = java.nio.file.Files.newInputStream(
+            (java.nio.file.Path) P, opts);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException |
+            java.lang.IllegalArgumentException |
+            java.lang.UnsupportedOperationException |
+            java.lang.SecurityException e) {
+        IS = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+new_output_stream(Path, Options, Result, !IO) :-
+    JOptions = list.map(open_option_to_jopen_option, Options),
+    list.length(Options, NumOptions),
+    do_new_output_stream(Path, NumOptions, JOptions, IsOk, Stream,
+        Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Stream)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_new_output_stream(P::in, int::in, list(jopen_option)::in,
+    bool::out, joutput_stream::out, throwable::out,
+    io::di, io::uo) is det <= path(P).
+:- pragma foreign_proc("Java",
+    do_new_output_stream(P::in, NumOptions::in, Options::in, IsOk::out,
+        OS::out,  Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    java.nio.file.OpenOption opts[] = new java.nio.file.OpenOption[NumOptions];
+    for (int i = 0; !list.is_empty(Options); i++) {
+        opts[i] = list.det_head(Options);
+        Options = list.det_tail(Options);
+    }
+
+    try {
+        OS = java.nio.file.Files.newOutputStream(
+            (java.nio.file.Path) P, opts);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException |
+            java.lang.IllegalArgumentException |
+            java.lang.UnsupportedOperationException |
+            java.lang.SecurityException e) {
+        OS = null;
         IsOk = bool.NO;
         Error = e;
     }
