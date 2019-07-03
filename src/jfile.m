@@ -18,5 +18,6 @@
 :- include_module copy_option.
 :- include_module files.
 :- include_module link_option.
+:- include_module open_option.
 :- include_module path.
 :- include_module standard_copy_option.

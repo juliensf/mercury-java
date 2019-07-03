@@ -14,6 +14,7 @@
 :- interface.
 
 :- import_module jnio.jfile.copy_option.
+:- import_module jnio.jfile.open_option.
 
 %---------------------------------------------------------------------------%
 
@@ -21,6 +22,7 @@
     --->    nofollow_links.
 
 :- instance copy_option(link_option).
+:- instance open_option(link_option).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -33,14 +35,32 @@
 
 :- func lo_to_co(link_option) = copy_option.
 
-lo_to_co(nofollow_links) = jnofollow_links.
+lo_to_co(nofollow_links) = jnofollow_links_co.
 
-:- func jnofollow_links = copy_option.
+:- func jnofollow_links_co = copy_option.
 :- pragma foreign_proc("Java",
-    jnofollow_links = (CO::out),
+    jnofollow_links_co = (CO::out),
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     CO = java.nio.file.LinkOption.NOFOLLOW_LINKS;
+").
+
+%---------------------------------------------------------------------------%
+
+:- instance open_option(link_option) where [
+    func(to_open_option/1) is lo_to_oo
+].
+
+:- func lo_to_oo(link_option) = open_option.
+
+lo_to_oo(nofollow_links) = jnofollow_links_oo.
+
+:- func jnofollow_links_oo = open_option.
+:- pragma foreign_proc("Java",
+    jnofollow_links_oo = (OO::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    OO = java.nio.file.LinkOption.NOFOLLOW_LINKS;
 ").
 
 %---------------------------------------------------------------------------%
