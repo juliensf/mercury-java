@@ -13,6 +13,13 @@
 :- module jio.file.
 :- interface.
 
+:- import_module jlang.
+:- import_module jlang.throwable.
+:- import_module jnio.
+:- import_module jnio.jfile.
+:- import_module jnio.jfile.path.
+
+:- import_module io.
 :- import_module maybe.
 
 %---------------------------------------------------------------------------%
@@ -24,6 +31,9 @@
 :- func get_name(file) = string.
 
 :- func get_parent(file) = maybe(string).
+
+:- pred to_path(file::in, maybe_error(path, throwable)::out,
+    io::di, io::uo) is det.
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -74,6 +84,35 @@ get_parent(File) = Result :-
 "
     P = F.getParent();
     Ok = (P == null) ? bool.NO : bool.YES;
+").
+
+%---------------------------------------------------------------------------%
+
+to_path(File, Result, !IO) :-
+    do_to_path(File, IsOk, Path, Error, !IO),
+    (
+        IsOk = yes,
+        Result = ok(Path)
+    ;
+        IsOk = no,
+        Result = error(Error)
+    ).
+
+:- pred do_to_path(file::in, bool::out, path::out, throwable::out,
+    io::di, io::uo) is det.
+:- pragma foreign_proc("Java",
+    do_to_path(F::in, IsOk::out, P::out, Error::out, _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        P = F.toPath();
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.nio.file.InvalidPathException e) {
+        P = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
