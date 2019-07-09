@@ -28,6 +28,10 @@
 :- instance temporal(year).
 :- instance temporal_accessor(year).
 
+:- func min_value = int.
+
+:- func max_value = int.
+
 :- func at_day(year, int) = local_date.
 
 :- pred is_after(year::in, year::in) is semidet.
@@ -78,6 +82,22 @@
 
 :- instance temporal(year) where [].
 :- instance temporal_accessor(year) where [].
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    min_value = (I::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    I = java.time.Year.MIN_VALUE;
+").
+
+:- pragma foreign_proc("Java",
+    max_value = (I::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    I = java.time.Year.MAX_VALUE;
+").
 
 %---------------------------------------------------------------------------%
 

@@ -21,6 +21,7 @@
 :- include_module local_date.
 :- include_module local_date_time.
 :- include_module local_time.
+:- include_module month.
 :- include_module offset_date_time.
 :- include_module offset_time.
 :- include_module period.

@@ -20,9 +20,11 @@
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 :- import_module jtime.local_time.
+:- import_module jtime.month.
 :- import_module jtime.offset_date_time.
 :- import_module jtime.zone_offset.
 
+:- import_module calendar.
 :- import_module io.
 
 %---------------------------------------------------------------------------%
@@ -45,6 +47,9 @@
 :- func get_hour(local_date_time) = int.
 
 :- func get_minute(local_date_time) = int.
+
+:- func get_month(local_date_time) = month.    % Mercury calendar.month/0.
+:- func get_jmonth(local_date_time) = jmonth.  % java.time.Month.
 
 :- func get_month_value(local_date_time) = int.
 
@@ -194,6 +199,19 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     M = DT.getMinute();
+").
+
+%---------------------------------------------------------------------------%
+
+get_month(DT) = Month :-
+    JMonth = get_jmonth(DT),
+    Month = month.from_jmonth(JMonth).
+
+:- pragma foreign_proc("Java",
+    get_jmonth(DT::in) = (JM::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    JM = DT.getMonth();
 ").
 
 %---------------------------------------------------------------------------%

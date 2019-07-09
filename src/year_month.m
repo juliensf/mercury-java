@@ -20,7 +20,10 @@
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
 
+:- import_module calendar.
 :- import_module io.
+
+%---------------------------------------------------------------------------%
 
 :- type year_month.
 :- instance temporal(year_month).
@@ -47,6 +50,8 @@
 
 :- pred now(year_month::out, io::di, io::uo) is det.
 
+:- func of(int, month) = year_month.
+
 :- func to_string(year_month) = string.
 
 %---------------------------------------------------------------------------%
@@ -65,9 +70,13 @@
 
 :- import_module jlang.
 :- import_module jlang.throwable.
+:- import_module jtime.month.
+:- import_module jtime.year.
 
 :- import_module bool.
 :- import_module exception.
+:- import_module int.
+:- import_module require.
 
 %---------------------------------------------------------------------------%
 
@@ -182,6 +191,24 @@ at_day(YM, D) = LD :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     YM = java.time.YearMonth.now();
+").
+
+%---------------------------------------------------------------------------%
+
+of(Year, Month) = YearMonth :-
+    ( if Year >= jtime.year.min_value, Year =< jtime.year.max_value then
+        JMonth = to_jmonth(Month),
+        do_of_year_jmonth(Year, JMonth, YearMonth)
+    else
+        unexpected("jtime.year_month.of", "year is out-of-range")
+    ).
+
+:- pred do_of_year_jmonth(int::in, jmonth::in, year_month::out) is det.
+:- pragma foreign_proc("Java",
+    do_of_year_jmonth(Y::in, M::in, YM::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    YM = java.time.YearMonth.of(Y, M);
 ").
 
 %---------------------------------------------------------------------------%
