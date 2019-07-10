@@ -19,6 +19,7 @@
 :- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
 :- import_module jtime.local_date.
+:- import_module jtime.month.
 
 :- import_module calendar.
 :- import_module io.
@@ -39,6 +40,9 @@
     string::out) is semidet.
 
 :- func get_year(year_month) = int.
+
+:- func get_month(year_month) = month.    % Mercury calendar.month/0.
+:- func get_jmonth(year_month) = jmonth.  % java.time.Month.
 
 :- func get_month_value(year_month) = int.
 
@@ -146,6 +150,19 @@ at_day(YM, D) = LD :-
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     Y = YM.getYear();
+").
+
+%---------------------------------------------------------------------------%
+
+get_month(YM) = Month :-
+    JMonth = get_jmonth(YM),
+    Month = month.from_jmonth(JMonth).
+
+:- pragma foreign_proc("Java",
+    get_jmonth(YM::in) = (JM::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    JM = YM.getMonth();
 ").
 
 %---------------------------------------------------------------------------%
