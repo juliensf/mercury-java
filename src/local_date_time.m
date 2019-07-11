@@ -13,6 +13,7 @@
 :- module jtime.local_date_time.
 :- interface.
 
+:- import_module jtime.day_of_week.
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.jtemporal.
@@ -41,6 +42,9 @@
 
 :- pred format(local_date_time::in, date_time_formatter::in, string::out)
     is semidet.
+
+:- func get_day_of_week(local_date_time) = day_of_week.
+:- func get_jday_of_week(local_date_time) = jday_of_week.
 
 :- func get_day_of_month(local_date_time) = int.
 
@@ -172,6 +176,19 @@
         S = null;
         SUCCESS_INDICATOR = false;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+get_day_of_week(LDT) = DOW :-
+    JDOW = get_jday_of_week(LDT),
+    DOW = from_jday_of_week(JDOW).
+
+:- pragma foreign_proc("Java",
+    get_jday_of_week(LDT::in) = (DOW::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DOW = LDT.getDayOfWeek();
 ").
 
 %---------------------------------------------------------------------------%

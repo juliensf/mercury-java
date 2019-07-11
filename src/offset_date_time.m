@@ -13,6 +13,7 @@
 :- module jtime.offset_date_time.
 :- interface.
 
+:- import_module jtime.day_of_week.
 :- import_module jtime.format.
 :- import_module jtime.format.date_time_formatter.
 :- import_module jtime.instant.
@@ -41,6 +42,9 @@
 
 :- pred format(offset_date_time::in, date_time_formatter::in, string::out)
     is semidet.
+
+:- func get_day_of_week(offset_date_time) = day_of_week.
+:- func get_jday_of_week(offset_date_time) = jday_of_week.
 
 :- func get_day_of_month(offset_date_time) = int.
 
@@ -165,6 +169,19 @@
         S = null;
         SUCCESS_INDICATOR = false;
     }
+").
+
+%---------------------------------------------------------------------------%
+
+get_day_of_week(ODT) = DOW :-
+    JDOW = get_jday_of_week(ODT),
+    DOW = from_jday_of_week(JDOW).
+
+:- pragma foreign_proc("Java",
+    get_jday_of_week(ODT::in) = (DOW::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    DOW = ODT.getDayOfWeek();
 ").
 
 %---------------------------------------------------------------------------%

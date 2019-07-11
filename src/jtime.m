@@ -15,6 +15,7 @@
 
 :- include_module jtemporal.
 
+:- include_module day_of_week.
 :- include_module duration.
 :- include_module format.
 :- include_module instant.
