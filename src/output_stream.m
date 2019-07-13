@@ -13,6 +13,7 @@
 :- module jio.output_stream.
 :- interface.
 
+:- import_module bitmap.
 :- import_module io.
 :- import_module stream.
 
@@ -39,7 +40,16 @@
 
 :- pred flush(T::in, io::di, io::uo) is det <= output_stream(T).
 
-:- pred write_byte(T::in, uint8::in, io::di, io::uo) is det <= output_stream(T).
+    % Write a single byte to the output stream.
+    %
+:- pred write_byte(T::in, uint8::in, io::di, io::uo) is det
+    <= output_stream(T).
+
+    % Write the bytes in the bitmap to the output stream.
+    % Throws an exception if the bitmap contains a partial final byte.
+    %
+:- pred write_bytes(T::in, bitmap::in, io::di, io::uo) is det
+    <= output_stream(T).
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -51,10 +61,17 @@
 
 :- import_module bool.
 :- import_module exception.
+:- import_module require.
 
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_type("Java", joutput_stream, "java.io.OutputStream").
+
+:- pragma foreign_decl("Java", "
+    import jmercury.runtime.MercuryBitmap;
+").
+
+%---------------------------------------------------------------------------%
 
 :- instance output_stream(joutput_stream) where [].
 
@@ -144,6 +161,38 @@ write_byte(Stream, Byte, !IO) :-
 "
     try {
         ((java.io.OutputStream) Stream).write(Byte & 0xff);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.io.IOException e) {
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+write_bytes(Stream, Bitmap, !IO) :-
+    ( if _NumBytes = num_bytes(Bitmap) then
+        do_write_bytes(Stream, Bitmap, IsOk, Error, !IO),
+        (
+            IsOk = yes
+        ;
+            IsOk = no,
+            throw(java_exception(Error))
+        )
+    else
+        unexpected("jio.output_stream.write_bytes", "parital final byte")
+    ).
+
+:- pred do_write_bytes(T::in, bitmap::in, bool::out, throwable::out,
+    io::di, io::uo) is det <= output_stream(T).
+:- pragma foreign_proc("Java",
+    do_write_bytes(Stream::in, Bitmap::in, IsOk::out, Error::out,
+        _IO0::di, _IO::uo),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        ((java.io.OutputStream) Stream).write(Bitmap.elements);
         IsOk = bool.YES;
         Error = null;
     } catch (java.io.IOException e) {

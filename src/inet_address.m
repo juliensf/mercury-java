@@ -21,19 +21,31 @@
 
 :- pred get_canonical_host_name(T::in, string::out, io::di, io::uo) is det
     <= inet_address(T).
+
 :- pred get_host_address(T::in, string::out, io::di, io::uo) is det
     <= inet_address(T).
+
 :- pred get_host_name(T::in, string::out, io::di, io::uo) is det
     <= inet_address(T).
+
 :- pred is_any_local_address(T::in) is semidet <= inet_address(T).
+
 :- pred is_link_local_address(T::in) is semidet <= inet_address(T).
+
 :- pred is_loopback_address(T::in) is semidet <= inet_address(T).
+
 :- pred is_mc_global(T::in) is semidet <= inet_address(T).
+
 :- pred is_mc_link_local(T::in) is semidet <= inet_address(T).
+
 :- pred is_mc_node_local(T::in) is semidet <= inet_address(T).
+
 :- pred is_mc_org_local(T::in) is semidet <= inet_address(T).
+
 :- pred is_mc_site_local(T::in) is semidet <= inet_address(T).
+
 :- pred is_multicast_address(T::in) is semidet <= inet_address(T).
+
 :- func to_string(T) = string <= inet_address(T).
 
 %---------------------------------------------------------------------------%
