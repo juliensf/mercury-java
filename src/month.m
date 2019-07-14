@@ -13,11 +13,16 @@
 :- module jtime.month.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
+:- import_module bool.
 :- import_module calendar.
 
 %---------------------------------------------------------------------------%
 
 :- type jmonth.
+:- instance temporal_accessor(jmonth).
 
     % Conversion to and from the Mercury standard library's calander.month/0
     % type.
@@ -26,6 +31,10 @@
 :- func to_jmonth(month) = jmonth.
 
 %---------------------------------------------------------------------------%
+
+:- func first_day_of_year(jmonth, bool) = int.
+
+:- func first_month_of_quarter(jmonth) = jmonth.
 
 :- func get_value(jmonth) = int.
 
@@ -55,6 +64,8 @@
     equality is month.equals,
     comparison is month.compare_to.
 
+:- instance temporal_accessor(jmonth) where [].
+
 %---------------------------------------------------------------------------%
 
 from_jmonth(JMonth) = Month :-
@@ -64,6 +75,24 @@ from_jmonth(JMonth) = Month :-
 to_jmonth(Month) = JMonth :-
     I = calendar.month_to_int(Month),
     do_of(I, JMonth).
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    first_day_of_year(M::in, IsLeapYear::in) = (D::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    D = M.firstDayOfYear((IsLeapYear == bool.YES));
+").
+
+%---------------------------------------------------------------------------%
+
+:- pragma foreign_proc("Java",
+    first_month_of_quarter(M::in) = (FM::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    FM = M.firstMonthOfQuarter();
+").
 
 %---------------------------------------------------------------------------%
 

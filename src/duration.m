@@ -13,15 +13,27 @@
 :- module jtime.duration.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal.
+:- import_module jtime.jtemporal.temporal_amount.
+
 %---------------------------------------------------------------------------%
 
 :- type duration.
+
+:- instance temporal_amount(duration).
+
+%---------------------------------------------------------------------------%
 
 :- func zero = duration.
 
 :- func abs(duration) = duration.
 
+:- func between(T1, T2) = duration <= (temporal(T1), temporal(T2)).
+
 :- func divided_by(duration, int64) = duration.
+
+:- func from(T) = duration <= temporal_amount(T).
 
 :- func get_nano(duration) = int.
 
@@ -115,6 +127,8 @@
     equality is duration.equals,
     comparison is duration.compare_to.
 
+:- instance temporal_amount(duration) where [].
+
 %---------------------------------------------------------------------------%
 
 :- pragma foreign_proc("Java",
@@ -131,6 +145,36 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     AD = D.abs();
+").
+
+%---------------------------------------------------------------------------%
+
+between(T1, T2) = Duration :-
+    do_between(T1, T2, IsOk, Duration, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_between(T1::in, T2::in, bool::out, duration::out,
+    throwable::out) is det <= (temporal(T1), temporal(T2)).
+:- pragma foreign_proc("Java",
+    do_between(T1::in, T2::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.between(
+            (java.time.temporal.Temporal) T1,
+            (java.time.temporal.Temporal) T2);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        D = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -156,6 +200,34 @@ divided_by(Duration, Divisor) = Result :-
         Error = null;
     } catch (java.lang.ArithmeticException e) {
         Result = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+from(TA) = Duration :-
+    do_from(TA, IsOk, Duration, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_from(T::in, bool::out, duration::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_from(TA::in, IsOk::out, D::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        D = java.time.Duration.from((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        D = null;
         IsOk = bool.NO;
         Error = e;
     }

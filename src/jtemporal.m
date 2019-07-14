@@ -15,6 +15,7 @@
 
 :- include_module temporal.
 :- include_module temporal_accessor.
+:- include_module temporal_amount.
 
 %-----------------------------------------------------------------------------%
 :- end_module jtime.jtemporal.

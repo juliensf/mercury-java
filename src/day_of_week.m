@@ -13,11 +13,15 @@
 :- module jtime.day_of_week.
 :- interface.
 
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_accessor.
+
 :- import_module calendar.
 
 %---------------------------------------------------------------------------%
 
 :- type jday_of_week.
+:- instance temporal_accessor(jday_of_week).
 
     % Conversion to and from the Mercury standard library's
     % calander.day_of_week/0 type.
@@ -55,6 +59,8 @@
 :- pragma foreign_type("Java", jday_of_week, "java.time.DayOfWeek") where
     equality is day_of_week.equals,
     comparison is day_of_week.compare_to.
+
+:- instance temporal_accessor(jday_of_week) where [].
 
 %---------------------------------------------------------------------------%
 

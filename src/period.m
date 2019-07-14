@@ -14,8 +14,16 @@
 :- interface.
 
 :- import_module jtime.local_date.
+:- import_module jtime.jtemporal.
+:- import_module jtime.jtemporal.temporal_amount.
+
+%---------------------------------------------------------------------------%
 
 :- type period.
+
+:- instance temporal_amount(period).
+
+%---------------------------------------------------------------------------%
 
 :- func zero = period.
 
@@ -70,6 +78,8 @@
 
 :- pragma foreign_type("Java", period, "java.time.Period") where
     equality is period.equals.
+
+:- instance temporal_amount(period) where [].
 
 %---------------------------------------------------------------------------%
 
