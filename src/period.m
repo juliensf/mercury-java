@@ -29,6 +29,8 @@
 
 :- func between(local_date, local_date) = period.
 
+:- func from(T) = period <= temporal_amount(T).
+
 :- func get_days(period) = int.
 
 :- func get_months(period) = int.
@@ -39,6 +41,8 @@
 
 :- pred is_zero(period::in) is semidet.
 
+:- func minus(period, T) = period <= temporal_amount(T).
+
 :- func minus_days(period, int64) = period.
 
 :- func minus_months(period, int64) = period.
@@ -48,6 +52,8 @@
 :- func multiplied_by(period, int) = period.
 
 :- pred parse(string::in, period::out) is semidet.
+
+:- func plus(period, T) = period <= temporal_amount(T).
 
 :- func plus_days(period, int64) = period.
 
@@ -101,6 +107,34 @@
 
 %---------------------------------------------------------------------------%
 
+from(TA) = Period :-
+    do_from(TA, IsOk, Period, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_from(T::in, bool::out, period::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_from(TA::in, IsOk::out, P::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        P = java.time.Period.from((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        P = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     get_days(P::in) = (N::out),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -142,6 +176,34 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     SUCCESS_INDICATOR = P.isZero();
+").
+
+%---------------------------------------------------------------------------%
+
+minus(P0, TA) = P :-
+    do_minus(P0, TA, IsOk, P, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus(period::in, T::in, bool::out, period::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_minus(P0::in, TA::in, IsOk::out, P::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        P = P0.minus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        P = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -268,6 +330,34 @@ multiplied_by(Period, Multiplicand) = Result :-
     } catch (java.time.format.DateTimeParseException e) {
         P = null;
         SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus(P0, TA) = P :-
+    do_plus(P0, TA, IsOk, P, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus(period::in, T::in, bool::out, period::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_plus(P0::in, TA::in, IsOk::out, P::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        P = P0.plus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        P = null;
+        IsOk = bool.NO;
+        Error = e;
     }
 ").
 

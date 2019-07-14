@@ -16,6 +16,7 @@
 :- import_module jtime.jtemporal.
 :- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
+:- import_module jtime.jtemporal.temporal_amount.
 
 :- import_module io.
 
@@ -39,6 +40,8 @@
 
 :- pred is_before(instant::in, instant::in) is semidet.
 
+:- func minus(instant, T) = instant <= temporal_amount(T).
+
 :- func minus_millis(instant, int64) = instant.
 
 :- func minus_nanos(instant, int64) = instant.
@@ -54,6 +57,8 @@
 :- func of_epoch_second(int64, int64) = instant.
 
 :- pred parse(string::in, instant::out) is semidet.
+
+:- func plus(instant, T) = instant <= temporal_amount(T).
 
 :- func plus_millis(instant, int64) = instant.
 
@@ -154,6 +159,34 @@
     [will_not_call_mercury, promise_pure, thread_safe],
 "
     SUCCESS_INDICATOR = A.isBefore(B);
+").
+
+%---------------------------------------------------------------------------%
+
+minus(I0, TA) = I :-
+    do_minus(I0, TA, IsOk, I, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus(instant::in, T::in, bool::out, instant::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_minus(I0::in, TA::in, IsOk::out, I::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        I = I0.minus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        I = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
 ").
 
 %---------------------------------------------------------------------------%
@@ -348,6 +381,34 @@ of_epoch_second(S, NA) = Instant :-
     } catch (java.time.format.DateTimeParseException e) {
         I = null;
         SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus(I0, TA) = I :-
+    do_plus(I0, TA, IsOk, I, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus(instant::in, T::in, bool::out, instant::out, throwable::out)
+    is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_plus(I0::in, TA::in, IsOk::out, I::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        I = I0.plus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        I = null;
+        IsOk = bool.NO;
+        Error = e;
     }
 ").
 
