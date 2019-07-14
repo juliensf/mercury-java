@@ -22,6 +22,7 @@
 :- import_module jtime.jtemporal.
 :- import_module jtime.jtemporal.temporal.
 :- import_module jtime.jtemporal.temporal_accessor.
+:- import_module jtime.jtemporal.temporal_amount.
 
 :- import_module calendar.
 :- import_module io.
@@ -29,8 +30,11 @@
 %---------------------------------------------------------------------------%
 
 :- type local_date.
+
 :- instance temporal(local_date).
 :- instance temporal_accessor(local_date).
+
+%---------------------------------------------------------------------------%
 
 :- func min = local_date.
 
@@ -65,12 +69,16 @@
 
 :- pred is_leap_year(local_date::in) is semidet.
 
+:- func minus(local_date, T) = local_date <= temporal_amount(T).
+
 :- pred now(local_date::out, io::di, io::uo) is det.
 
 :- pred parse(string::in, local_date::out) is semidet.
 
 :- pred parse(string::in, date_time_formatter::in, local_date::out)
     is semidet.
+
+:- func plus(local_date, T) = local_date <= temporal_amount(T).
 
 :- func plus_days(local_date, int64) = local_date.
 
@@ -256,6 +264,34 @@ get_month(LD) = Month :-
 
 %---------------------------------------------------------------------------%
 
+minus(DT0, TA) = DT :-
+    do_minus(DT0, TA, IsOk, DT, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_minus(local_date::in, T::in, bool::out, local_date::out,
+    throwable::out) is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_minus(DT0::in, TA::in, IsOk::out, DT::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        DT = DT0.minus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        DT = null;
+        IsOk = bool.NO;
+        Error = e;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
 :- pragma foreign_proc("Java",
     now(D::out, _IO0::di, _IO::uo),
     [will_not_call_mercury, promise_pure, thread_safe],
@@ -290,6 +326,34 @@ get_month(LD) = Month :-
     } catch (java.time.format.DateTimeParseException e) {
         D = null;
         SUCCESS_INDICATOR = false;
+    }
+").
+
+%---------------------------------------------------------------------------%
+
+plus(DT0, TA) = DT :-
+    do_plus(DT0, TA, IsOk, DT, Error),
+    (
+        IsOk = yes
+    ;
+        IsOk = no,
+        throw(java_exception(Error))
+    ).
+
+:- pred do_plus(local_date::in, T::in, bool::out, local_date::out,
+    throwable::out) is det <= temporal_amount(T).
+:- pragma foreign_proc("Java",
+    do_plus(DT0::in, TA::in, IsOk::out, DT::out, Error::out),
+    [will_not_call_mercury, promise_pure, thread_safe],
+"
+    try {
+        DT = DT0.plus((java.time.temporal.TemporalAmount) TA);
+        IsOk = bool.YES;
+        Error = null;
+    } catch (java.time.DateTimeException | java.lang.ArithmeticException e) {
+        DT = null;
+        IsOk = bool.NO;
+        Error = e;
     }
 ").
 
