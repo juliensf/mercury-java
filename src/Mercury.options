@@ -1,3 +1,7 @@
 MCFLAGS = --grade java --libgrades-include java
 
 MCFLAGS-mercury_java = --no-warn-nothing-exported --no-warn-interface-imports
+MCFLAGS-jnio.channels = --no-warn-nothing-exported
+MCFLAGS-jutil = --no-warn-nothing-exported
+MCFLAGS-jtime.format = --no-warn-nothing-exported
+MCFLAGS-jtext = --no-warn-nothing-exported

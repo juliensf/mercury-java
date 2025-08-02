@@ -1,7 +1,7 @@
 %---------------------------------------------------------------------------%
 % vim: ft=mercury ts=4 sw=4 et
 %---------------------------------------------------------------------------%
-% Copyright (C) 2019, Julien Fischer.
+% Copyright (C) 2019, 2025 Julien Fischer.
 % See the file COPYING for license details.
 %
 % Author: Julien Fischer <juliensf@gmail.com>
@@ -74,7 +74,7 @@
 :- instance reader(buffered_reader) where [].
 
 :- instance stream(buffered_reader, io) where [
-    ( name(_Stream, Name, !IO) :-
+    ( name(_Stream, Name, IO, IO) :-
         Name = "<<java.io.BufferedReader>>"
     )
 ].

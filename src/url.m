@@ -1,7 +1,7 @@
 %---------------------------------------------------------------------------%
 % vim: ft=mercury ts=4 sw=4 et
 %---------------------------------------------------------------------------%
-% Copyright (C) 2019, Julien Fischer.
+% Copyright (C) 2019, 2025 Julien Fischer.
 % See the file COPYING for license details.
 %
 % Author: Julien Fischer <juliensf@gmail.com>
@@ -17,8 +17,8 @@
 :- import_module jio.input_stream.
 :- import_module jlang.
 :- import_module jlang.throwable.
-:- import_module jnet.url_connection.
 :- import_module jnet.uri.
+:- import_module jnet.url_connection.
 
 :- import_module io.
 :- import_module maybe.
@@ -65,9 +65,6 @@
 %---------------------------------------------------------------------------%
 
 :- implementation.
-
-:- import_module jlang.
-:- import_module jlang.throwable.
 
 :- import_module bool.
 :- import_module exception.

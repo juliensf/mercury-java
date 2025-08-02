@@ -1,7 +1,7 @@
 %---------------------------------------------------------------------------%
 % vim: ft=mercury ts=4 sw=4 et
 %---------------------------------------------------------------------------%
-% Copyright (C) 2019, Julien Fischer.
+% Copyright (C) 2019 Julien Fischer.
 % See the file COPYING for license details.
 %
 % Author: Julien Fischer <juliensf@gmail.com>
@@ -172,7 +172,7 @@ write_byte(Stream, Byte, !IO) :-
 %---------------------------------------------------------------------------%
 
 write_bytes(Stream, Bitmap, !IO) :-
-    ( if _NumBytes = num_bytes(Bitmap) then
+    ( if _NumBytes : int = num_bytes(Bitmap) then
         do_write_bytes(Stream, Bitmap, IsOk, Error, !IO),
         (
             IsOk = yes

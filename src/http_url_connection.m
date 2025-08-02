@@ -1,7 +1,7 @@
 %---------------------------------------------------------------------------%
 % vim: ft=mercury ts=4 sw=4 et
 %---------------------------------------------------------------------------%
-% Copyright (C) 2019, Julien Fischer.
+% Copyright (C) 2019 Julien Fischer.
 % See the file COPYING for license details.
 %
 % Author: Julien Fischer <juliensf@gmail.com>
@@ -95,8 +95,6 @@
 
 :- implementation.
 
-
-:- import_module bool.
 :- import_module exception.
 :- import_module int.
 :- import_module require.
